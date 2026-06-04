@@ -1,0 +1,17 @@
+{
+  "name": "mini-expense-tracker-monorepo",
+  "version": "1.0.0",
+  "description": "Mini Expense Tracker Assessment Monorepo",
+  "private": true,
+  "scripts": {
+    "install:client": "npm install --prefix client",
+    "install:server": "npm install --prefix server",
+    "install-all": "npm run install:client && npm run install:server",
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "dev": "concurrently \"npm run client\" \"npm run server\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
