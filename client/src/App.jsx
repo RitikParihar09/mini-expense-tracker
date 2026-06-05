@@ -7,7 +7,7 @@ import ExpenseTable from './components/ExpenseTable';
 import ExpenseForm from './components/ExpenseForm';
 import BudgetModal from './components/BudgetModal';
 import { exportToCSV } from './utils/helpers';
-import { AlertTriangle, User, Save, PieChart, Calendar } from 'lucide-react';
+import { AlertTriangle, User, Save, PieChart, Calendar, X } from 'lucide-react';
 
 const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
 
@@ -115,6 +115,7 @@ const App = () => {
   const [startDate, setStartDate] = useState('2025-06-01');
   const [endDate, setEndDate] = useState('2025-06-03');
   const [timePeriod, setTimePeriod] = useState('this-month'); // for category chart filter
+  const [dismissedWarnings, setDismissedWarnings] = useState([]);
 
   // Form Modal State
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -178,6 +179,7 @@ const App = () => {
   const saveBudgets = (newBudgets) => {
     setBudgets(newBudgets);
     localStorage.setItem('budgets', JSON.stringify(newBudgets));
+    setDismissedWarnings([]); // Clear dismissed warnings on budget limit updates
   };
 
   // 3. CRUD Operations
@@ -392,17 +394,41 @@ const App = () => {
         {activeTab === 'dashboard' && (
           <>
             {/* Budget warnings if any */}
-            {exceededBudgets.map(b => (
-              <div key={b.category} className="budget-warning-banner">
-                <AlertTriangle className="budget-warning-icon" />
-                <div className="budget-warning-details">
-                  <span className="budget-warning-title">Budget Limit Exceeded!</span>
-                  <span className="budget-warning-desc">
-                    Your spending in <strong>{b.category}</strong> (₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}) has exceeded your monthly budget of ₹{b.limit.toLocaleString('en-IN', { minimumFractionDigits: 2 })} by <strong>₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>!
-                  </span>
+            {exceededBudgets
+              .filter(b => !dismissedWarnings.includes(b.category))
+              .map(b => (
+                <div key={b.category} className="budget-warning-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <AlertTriangle className="budget-warning-icon" />
+                    <div className="budget-warning-details">
+                      <span className="budget-warning-title">Budget Limit Exceeded!</span>
+                      <span className="budget-warning-desc">
+                        Your spending in <strong>{b.category}</strong> (₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}) has exceeded your monthly budget of ₹{b.limit.toLocaleString('en-IN', { minimumFractionDigits: 2 })} by <strong>₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>!
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setDismissedWarnings(prev => [...prev, b.category])}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#d97706',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '4px',
+                      borderRadius: 'var(--radius-full)',
+                      transition: 'background-color 0.2s'
+                    }}
+                    title="Dismiss warning"
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
-              </div>
-            ))}
+              ))
+            }
 
             {/* KPI Summary Cards */}
             <SummaryCards stats={stats} />
