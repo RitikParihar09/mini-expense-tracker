@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import SummaryCards from './components/SummaryCards';
 import CategoryChart from './components/CategoryChart';
@@ -8,6 +8,7 @@ import ExpenseForm from './components/ExpenseForm';
 import BudgetModal from './components/BudgetModal';
 import { exportToCSV } from './utils/helpers';
 import { AlertTriangle, User, Save, PieChart, Calendar, X } from 'lucide-react';
+import avatar from './assets/avatar.png';
 
 const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
 
@@ -116,6 +117,18 @@ const App = () => {
   const [endDate, setEndDate] = useState('2025-06-03');
   const [timePeriod, setTimePeriod] = useState('this-month'); // for category chart filter
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Form Modal State
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -382,11 +395,26 @@ const App = () => {
               <span>This Month (Jun 1 - Jun 3)</span>
             </button>
 
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100&h=100"
-              alt="User Profile"
-              className="user-avatar"
-            />
+            <div className="profile-dropdown-container" ref={profileMenuRef}>
+              <img
+                src={avatar}
+                alt="User Profile"
+                className="user-avatar"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                style={{ cursor: 'pointer' }}
+              />
+
+              {showProfileMenu && (
+                <div className="profile-dropdown-menu">
+                  <div className="profile-dropdown-user-info">
+                    <span className="profile-dropdown-name">Ritik Parihar</span>
+                    <span className="profile-dropdown-email">ritikparihar09@gmail.com</span>
+                  </div>
+                  <div className="profile-dropdown-divider" />
+                  <div className="profile-dropdown-role">Administrator</div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
