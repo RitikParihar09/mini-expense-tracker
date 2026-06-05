@@ -1,27 +1,21 @@
 # Mini Expense Tracker (Studio Graphene Take-Home Assessment)
 
-A highly polished, responsive, and interactive expense tracking application designed as a take-home assessment for the Full Stack Developer (Node.js + React) Programme. This project is structured as a monorepo featuring a `/client` React SPA (Vite) and `/server` Express REST API.
+A highly polished, responsive, and interactive full-stack expense tracking application designed as a take-home assessment for the Full Stack Developer (Node.js + React) Programme. This project is structured as a monorepo featuring a `/client` React SPA (Vite) and `/server` Node.js + Express REST API with persistent JSON database storage.
 
 ---
 
 ## 📌 Project Overview
 This application is a **Mini Expense Tracker** designed to help a single user log their daily spending across multiple categories (Food, Transport, Bills, Entertainment, Other), filter transactions, and monitor their monthly budget limits.
 
-### Core Frontend Highlights:
-- **Responsive KPI Cards**: Visualizing Total Spent, Transaction Count, Highest Expense, and Daily Average.
-- **Custom Donut Chart**: SVG-based animated category distribution chart.
-- **Budget Tracking Switch**: Exceeded budgets dynamically trigger warn indicators at the top of the dashboard.
-- **Filtering & Search**: Filter by categories and date ranges (presets or custom ranges).
+### Core Features:
+- **Interactive Dashboard**: Real-time KPI summary cards displaying Total Spent, Transaction Count, Highest Expense, and Daily Average.
+- **Custom Donut Chart**: SVG-based animated category distribution chart with interactive segment hover states showing exact values in the center.
+- **Budget Tracking**: Custom budget configurations per category. Exceeded budgets dynamically trigger warning banners at the top of the dashboard with individual dismiss controls.
+- **Filtering & Search**: Filters logs by categories and date ranges (presets or custom ranges).
 - **Import/Export**: Live CSV downloading of currently filtered/visible expenses.
 - **Premium Themes**: Sleek toggle switcher between Light Mode (default) and Dark Mode.
-
----
-
-## ⚙️ Tech Stack & Libraries
-- **Frontend**: React 19 (functional hooks), Vite (fast build system), Lucide React (premium UI icons).
-- **Backend**: Node.js, Express (REST API endpoints), Cors.
-- **Styling**: Modern Vanilla CSS utilizing CSS variables, flexbox/grid layout systems, and smooth transitions.
-- **Database (Planned)**: JSON file-based local database for persistent storage (to be wired tomorrow).
+- **Persistent Backend**: Connects directly to an Express backend storing data persistently on disk inside JSON files.
+- **Mobile Responsive**: Custom navigation drawer and wrapping elements for a seamless experience on tablets and mobile screens.
 
 ---
 
@@ -35,7 +29,7 @@ mini-expense-tracker/
 │   ├── index.html
 │   ├── src/
 │   │   ├── main.jsx
-│   │   ├── App.jsx           # Main state manager & page router
+│   │   ├── App.jsx           # Main state manager & frontend coordinator
 │   │   ├── index.css          # Design system & dark mode variables
 │   │   ├── components/
 │   │   │   ├── Sidebar.jsx    # Left navigation & theme toggle
@@ -46,11 +40,49 @@ mini-expense-tracker/
 │   │   │   ├── ExpenseTable.jsx # Logs log, filter toolbar, pagination, CSV button
 │   │   │   └── ExpenseForm.jsx # Add/Edit transaction modal overlay
 │   │   └── utils/
+│   │       ├── api.js         # API integration client (using native fetch)
 │   │       └── helpers.js     # INR currency, date formatting, CSV download
-└── server/                    # Node.js backend API skeleton
+└── server/                    # Node.js Express backend
     ├── package.json
-    └── server.js              # Express listener & endpoints config
+    ├── server.js              # Express listener & bootstrap
+    ├── data/
+    │   ├── expenses.json      # JSON Database - Expenses entries
+    │   └── budgets.json       # JSON Database - Budgets configuration
+    └── src/
+        ├── routes/
+        │   ├── expenseRoutes.js # Route mappings for expense endpoints
+        │   └── budgetRoutes.js  # Route mappings for budget endpoints
+        ├── controllers/
+        │   ├── expenseController.js # Operations logic & stats calculations
+        │   └── budgetController.js  # Operations logic for budgets
+        └── middlewares/
+            └── validation.js    # Data schema validation middleware
 ```
+
+---
+
+## ⚙️ Tech Stack & Libraries
+- **Frontend**: React 19 (functional hooks), Vite (fast build system), Lucide React (premium UI icons).
+- **Backend**: Node.js, Express (REST API endpoints), Cors.
+- **Database**: Local JSON files (`expenses.json`, `budgets.json`) read and written atomically via Node’s asynchronous `fs` module, avoiding database configuration overhead while ensuring local persistency.
+- **Styling**: Modern Vanilla CSS utilizing HSL custom variables, flexbox/grid layout systems, and cubic-bezier transition animations.
+
+---
+
+## 📡 API Documentation
+
+The Express backend exposes the following REST API endpoints:
+
+| Method | Path | Request Body | Response Shape | Description |
+|---|---|---|---|---|
+| **GET** | `/api/health` | None | `{ status: "ok", message: "..." }` | Health Check |
+| **GET** | `/api/expenses` | None | `Array<Expense>` | Fetch all expenses (supports optional query filters `category`, `startDate`, `endDate`) |
+| **GET** | `/api/expenses/stats` | None | `{ totalSpent, spentChange, totalCount, countChange, highestSpent, highestDate, highestDesc, dailyAvg }` | Compute dashboard summary metrics based on date parameters |
+| **POST** | `/api/expenses` | `{ description, category, amount, date, note }` | `{ success: true, data: Expense }` | Add new expense (runs schemas validations) |
+| **PUT** | `/api/expenses/:id` | `{ description, category, amount, date, note }` | `{ success: true, data: Expense }` | Edit existing expense (runs schemas validations) |
+| **DELETE** | `/api/expenses/:id` | None | `{ success: true, message: "..." }` | Delete an expense |
+| **GET** | `/api/budgets` | None | `{ Food, Transport, Bills, ... }` | Fetch category monthly budgets |
+| **PUT** | `/api/budgets` | `{ Food, Transport, Bills, ... }` | `{ success: true, budgets }` | Save updated budgets |
 
 ---
 
@@ -76,28 +108,11 @@ From the root folder, run:
 ```bash
 npm run dev
 ```
-This runs the client development server on `http://localhost:5174/` (or `http://localhost:5173/`) and the backend server on `http://localhost:5001/` concurrently.
-
----
-
-## 📡 API Documentation (Planned Endpoints)
-
-The Express backend exposes the following REST API endpoints:
-
-| Method | Path | Request Body | Response Shape | Description |
-|---|---|---|---|---|
-| **GET** | `/api/health` | None | `{ status: "ok", message: "..." }` | Health Check |
-| **GET** | `/api/expenses` | None | `Array<Expense>` | Fetch all expenses |
-| **POST** | `/api/expenses` | `{ description, category, amount, date, note }` | `{ success: true, data: Expense }` | Add new expense |
-| **PUT** | `/api/expenses/:id` | `{ description, category, amount, date, note }` | `{ success: true, data: Expense }` | Edit existing expense |
-| **DELETE** | `/api/expenses/:id` | None | `{ success: true, id }` | Delete an expense |
-| **GET** | `/api/budgets` | None | `{ Food, Transport, Bills, ... }` | Fetch monthly budgets |
-| **PUT** | `/api/budgets` | `{ Food, Transport, Bills, ... }` | `{ success: true, data: Budgets }` | Save updated budgets |
+This runs the client development server on `http://localhost:5173/` and the backend server on `http://localhost:5001/` concurrently.
 
 ---
 
 ## 🔮 Next Steps & Roadmap
-1. **Express Server Wiring**: Implement backend routes to read/write transactional and budget settings to a persistent local JSON database file.
-2. **REST Integration**: Swap the client-side `localStorage` CRUD handlers with `fetch` API requests to talk directly to the Express server.
-3. **Unit Testing**: Add basic endpoint test coverage using Jest/Supertest on the backend, and component verification tests using React Testing Library on the frontend.
-4. **Enhanced Visualizations**: Add bar charts to compare spending trends month-over-month.
+1. **Unit Testing**: Add basic endpoint test coverage using Jest/Supertest on the backend, and component verification tests using React Testing Library on the frontend.
+2. **Hosted Deployment**: Setup frontend deployment on Vercel/Netlify and backend deployment on Render/Railway.
+3. **Enhanced Visualizations**: Add comparative bar charts to display spending trends month-over-month.

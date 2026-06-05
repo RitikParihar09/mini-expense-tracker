@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1780672671885,
+    "date": "2026-06-05",
+    "description": "Taxi ride to office",
+    "category": "Transport",
+    "amount": 250,
+    "note": "Met with client"
+  },
+  {
+    "id": 1780672146956,
+    "date": "2026-06-05",
+    "description": "room rent",
+    "category": "Bills",
+    "amount": 5000,
+    "note": ""
+  },
+  {
+    "id": 1780672117857,
+    "date": "2026-06-05",
+    "description": "lunch and dinner",
+    "category": "Food",
+    "amount": 140,
+    "note": ""
+  }
+]

@@ -13,7 +13,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Expense Tracker API is running' });
 });
 
+// API Routes
+app.use('/api/expenses', require('./src/routes/expenseRoutes'));
+app.use('/api/budgets', require('./src/routes/budgetRoutes'));
+
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

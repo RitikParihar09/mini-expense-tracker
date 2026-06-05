@@ -9,6 +9,7 @@ import BudgetModal from './components/BudgetModal';
 import { exportToCSV, formatDate } from './utils/helpers';
 import { AlertTriangle, User, Save, PieChart, Calendar, X, ChevronDown, Check, Menu } from 'lucide-react';
 import avatar from './assets/avatar.png';
+import * as api from './utils/api';
 
 const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
 
@@ -122,6 +123,15 @@ const App = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState(DEFAULT_BUDGETS);
+  const [stats, setStats] = useState({
+    totalSpent: 0,
+    spentChange: 0,
+    totalCount: 0,
+    countChange: 0,
+    highestSpent: 0,
+    highestDate: '',
+    dailyAvg: 0
+  });
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -170,85 +180,65 @@ const App = () => {
   // Budgets configuration inputs
   const [tempBudgets, setTempBudgets] = useState({});
 
-  // 1. Initial Data Loading
-  useEffect(() => {
-    const localExpenses = localStorage.getItem('expenses');
-    const localBudgets = localStorage.getItem('budgets');
-
-    let validExpensesLoaded = false;
-    if (localExpenses) {
-      try {
-        const parsed = JSON.parse(localExpenses);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(e => e && e.date && e.category && typeof e.amount === 'number') && parsed.some(e => e.date.includes('2026'))) {
-          setExpenses(parsed);
-          validExpensesLoaded = true;
-        }
-      } catch (err) {
-        console.error('Failed to parse local expenses', err);
-      }
+  // 1. Initial Data Loading & Syncing
+  const loadData = async () => {
+    try {
+      const expensesData = await api.fetchExpenses();
+      setExpenses(expensesData);
+      
+      const budgetsData = await api.fetchBudgets();
+      setBudgets(budgetsData);
+      setTempBudgets(budgetsData);
+    } catch (err) {
+      console.error('Failed to load data from server', err);
     }
-
-    if (!validExpensesLoaded) {
-      const mock = generateMockExpenses();
-      setExpenses(mock);
-      localStorage.setItem('expenses', JSON.stringify(mock));
-    }
-
-    let validBudgetsLoaded = false;
-    if (localBudgets) {
-      try {
-        const parsed = JSON.parse(localBudgets);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length > 0) {
-          setBudgets(parsed);
-          setTempBudgets(parsed);
-          validBudgetsLoaded = true;
-        }
-      } catch (err) {
-        console.error('Failed to parse local budgets', err);
-      }
-    }
-
-    if (!validBudgetsLoaded) {
-      setBudgets(DEFAULT_BUDGETS);
-      setTempBudgets(DEFAULT_BUDGETS);
-      localStorage.setItem('budgets', JSON.stringify(DEFAULT_BUDGETS));
-    }
-  }, []);
-
-  // 2. Persist Data changes
-  const saveExpenses = (newExpenses) => {
-    setExpenses(newExpenses);
-    localStorage.setItem('expenses', JSON.stringify(newExpenses));
   };
 
-  const saveBudgets = (newBudgets) => {
-    setBudgets(newBudgets);
-    localStorage.setItem('budgets', JSON.stringify(newBudgets));
-    setDismissedWarnings([]); // Clear dismissed warnings on budget limit updates
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const saveBudgets = async (newBudgets) => {
+    try {
+      const result = await api.updateBudgets(newBudgets);
+      setBudgets(result.budgets);
+      setTempBudgets(result.budgets);
+      setDismissedWarnings([]); // Clear dismissed warnings on budget limit updates
+    } catch (err) {
+      alert(err.message || 'Failed to save budgets');
+    }
   };
 
   // 3. CRUD Operations
-  const handleAddExpense = (expenseData) => {
-    const newExpense = {
-      ...expenseData,
-      id: Date.now() // Simple unique numeric ID
-    };
-    const updated = [newExpense, ...expenses];
-    saveExpenses(updated);
-    setIsFormOpen(false);
+  const handleAddExpense = async (expenseData) => {
+    try {
+      await api.createExpense(expenseData);
+      await loadData();
+      setIsFormOpen(false);
+    } catch (err) {
+      alert(err.message || 'Failed to add expense');
+    }
   };
 
-  const handleEditExpense = (expenseData) => {
-    const updated = expenses.map(exp => exp.id === expenseData.id ? expenseData : exp);
-    saveExpenses(updated);
-    setEditingExpense(null);
-    setIsFormOpen(false);
+  const handleEditExpense = async (expenseData) => {
+    try {
+      await api.updateExpense(expenseData.id, expenseData);
+      await loadData();
+      setEditingExpense(null);
+      setIsFormOpen(false);
+    } catch (err) {
+      alert(err.message || 'Failed to update expense');
+    }
   };
 
-  const handleDeleteExpense = (id) => {
+  const handleDeleteExpense = async (id) => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
-      const updated = expenses.filter(exp => exp.id !== id);
-      saveExpenses(updated);
+      try {
+        await api.deleteExpense(id);
+        await loadData();
+      } catch (err) {
+        alert(err.message || 'Failed to delete expense');
+      }
     }
   };
 
@@ -300,76 +290,18 @@ const App = () => {
   };
 
   // 4. Calculations & Stats
-  // We compute statistics dynamically based on the selected dashboard date range
-  const getStats = () => {
-    // Current period expenses
-    const currentExpenses = expenses.filter(e => {
-      if (!e || !e.date || typeof e.date !== 'string') return false;
-      if (dashStartDate && e.date < dashStartDate) return false;
-      if (dashEndDate && e.date > dashEndDate) return false;
-      return true;
-    });
-
-    // Previous period range
-    const prevRange = getPrevMonthRange(dashStartDate, dashEndDate);
-    const prevExpenses = expenses.filter(e => {
-      if (!e || !e.date || typeof e.date !== 'string') return false;
-      if (prevRange.start && e.date < prevRange.start) return false;
-      if (prevRange.end && e.date > prevRange.end) return false;
-      return true;
-    });
-
-    // Current spent
-    const totalSpentCurrent = currentExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-    const countCurrent = currentExpenses.length;
-
-    // Previous spent
-    const totalSpentPrev = prevExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-    const countPrev = prevExpenses.length;
-
-    // Spent % change: ((Current - Prev) / Prev) * 100
-    let spentChange = 0;
-    if (totalSpentPrev > 0) {
-      spentChange = ((totalSpentCurrent - totalSpentPrev) / totalSpentPrev) * 100;
-    }
-
-    // Count change: Current - Prev
-    const countChange = countCurrent - countPrev;
-
-    // Highest expense in Current
-    let highestSpent = 0;
-    let highestDate = '';
-    currentExpenses.forEach(e => {
-      if (e && typeof e.amount === 'number' && e.amount > highestSpent) {
-        highestSpent = e.amount;
-        highestDate = e.date;
+  // Fetch statistics from Express backend
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const statsData = await api.fetchStats(dashStartDate, dashEndDate);
+        setStats(statsData);
+      } catch (err) {
+        console.error('Failed to load stats', err);
       }
-    });
-
-    // Daily Average: Current spent / total days in period
-    let dailyAvg = 0;
-    if (dashStartDate && dashEndDate) {
-      const startD = new Date(dashStartDate);
-      const endD = new Date(dashEndDate);
-      const diffTime = Math.abs(endD - startD);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      dailyAvg = totalSpentCurrent / (diffDays || 1);
-    } else {
-      dailyAvg = totalSpentCurrent / 30; // fallback default
-    }
-
-    return {
-      totalSpent: totalSpentCurrent,
-      spentChange,
-      totalCount: countCurrent,
-      countChange,
-      highestSpent,
-      highestDate,
-      dailyAvg
     };
-  };
-
-  const stats = getStats();
+    loadStats();
+  }, [dashStartDate, dashEndDate, expenses]);
 
   // Calculate totals per category based on selected dashboard date range
   const getCategoryChartData = () => {

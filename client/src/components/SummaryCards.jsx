@@ -23,10 +23,24 @@ const SummaryCards = ({ stats }) => {
         <div className="summary-card-details">
           <span className="summary-card-title">Total Spent (This Month)</span>
           <span className="summary-card-value">{formatCurrency(totalSpent)}</span>
-          <span className={`summary-card-trend ${isSpentIncrease ? 'trend-up' : 'trend-down'}`}>
-            <span>{isSpentIncrease ? '↗' : '↘'} {Math.abs(spentChange).toFixed(1)}%</span>
-            <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
-          </span>
+          {spentChange > 0 && (
+            <span className="summary-card-trend trend-up">
+              <span>↗ {Math.abs(spentChange).toFixed(1)}%</span>
+              <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
+            </span>
+          )}
+          {spentChange < 0 && (
+            <span className="summary-card-trend trend-down">
+              <span>↘ {Math.abs(spentChange).toFixed(1)}%</span>
+              <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
+            </span>
+          )}
+          {spentChange === 0 && (
+            <span className="summary-card-trend trend-neutral">
+              <span>0.0%</span>
+              <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
+            </span>
+          )}
         </div>
         <div className="summary-card-icon-wrapper kpi-wallet">
           <Wallet className="summary-card-icon" />
@@ -38,10 +52,24 @@ const SummaryCards = ({ stats }) => {
         <div className="summary-card-details">
           <span className="summary-card-title">Total Expenses</span>
           <span className="summary-card-value">{totalCount}</span>
-          <span className={`summary-card-trend ${isCountIncrease ? 'trend-up' : 'trend-down'}`}>
-            <span>{isCountIncrease ? '↗' : '↘'} {Math.abs(countChange)}</span>
-            <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
-          </span>
+          {countChange > 0 && (
+            <span className="summary-card-trend trend-up">
+              <span>↗ {Math.abs(countChange)}</span>
+              <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
+            </span>
+          )}
+          {countChange < 0 && (
+            <span className="summary-card-trend trend-down">
+              <span>↘ {Math.abs(countChange)}</span>
+              <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
+            </span>
+          )}
+          {countChange === 0 && (
+            <span className="summary-card-trend trend-neutral">
+              <span>0</span>
+              <span className="trend-neutral" style={{ fontWeight: 400, marginLeft: 2 }}>from last month</span>
+            </span>
+          )}
         </div>
         <div className="summary-card-icon-wrapper kpi-tag">
           <Tag className="summary-card-icon" />
