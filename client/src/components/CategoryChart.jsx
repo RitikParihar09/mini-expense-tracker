@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { formatCurrency } from '../utils/helpers';
 
 const CATEGORY_COLORS = {
@@ -10,6 +10,8 @@ const CATEGORY_COLORS = {
 };
 
 const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+
   // Calculate total across all categories
   const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
 
@@ -20,12 +22,12 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
     color: CATEGORY_COLORS[item.category] || '#64748b'
   }));
 
-  // SVG Calculations
-  const radius = 55;
-  const strokeWidth = 18;
-  const cx = 80;
-  const cy = 80;
-  const circumference = 2 * Math.PI * radius; // 345.57
+  // SVG Calculations (Increased size to 200x200)
+  const radius = 70;
+  const strokeWidth = 20;
+  const cx = 100;
+  const cy = 100;
+  const circumference = 2 * Math.PI * radius; // 439.82
 
   let accumulatedPercentage = 0;
 
@@ -46,8 +48,8 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
 
       <div className="chart-content-wrapper">
         {totalAmount === 0 ? (
-          <div className="donut-chart-container" style={{ width: '160px', height: '160px' }}>
-            <svg width="160" height="160" className="donut-chart-svg">
+          <div className="donut-chart-container" style={{ width: '200px', height: '200px', position: 'relative' }}>
+            <svg width="200" height="200" className="donut-chart-svg">
               <circle
                 cx={cx}
                 cy={cy}
@@ -58,19 +60,20 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
               />
             </svg>
             <div className="donut-chart-center-text">
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>No Data</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748b' }}>No Data</span>
             </div>
           </div>
         ) : (
-          <div className="donut-chart-container" style={{ width: '160px', height: '160px' }}>
-            <svg width="160" height="160" className="donut-chart-svg">
-              {chartData.map((item, index) => {
+          <div className="donut-chart-container" style={{ width: '200px', height: '200px', position: 'relative' }}>
+            <svg width="200" height="200" className="donut-chart-svg">
+              {chartData.map((item) => {
                 if (item.percentage === 0) return null;
 
                 const strokeDasharray = `${(item.percentage / 100) * circumference} ${circumference}`;
                 const strokeDashoffset = -((accumulatedPercentage / 100) * circumference);
                 
                 accumulatedPercentage += item.percentage;
+                const isHovered = hoveredCategory && hoveredCategory.category === item.category;
 
                 return (
                   <circle
@@ -78,16 +81,55 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
                     cx={cx}
                     cy={cy}
                     r={radius}
-                    fill="transparent"
+                    fill="none"
                     stroke={item.color}
-                    strokeWidth={strokeWidth}
+                    strokeWidth={isHovered ? strokeWidth + 4 : strokeWidth}
                     strokeDasharray={strokeDasharray}
                     strokeDashoffset={strokeDashoffset}
-                    style={{ transition: 'stroke-dashoffset 0.5s ease-in-out' }}
+                    onMouseEnter={() => setHoveredCategory(item)}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                    style={{
+                      transition: 'stroke-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.5s ease-in-out',
+                      cursor: 'pointer'
+                    }}
                   />
                 );
               })}
             </svg>
+            <div className="donut-chart-center-text" style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              pointerEvents: 'none',
+              width: '120px'
+            }}>
+              {hoveredCategory ? (
+                <>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {hoveredCategory.category}
+                  </span>
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px', wordBreak: 'break-all' }}>
+                    {formatCurrency(hoveredCategory.amount)}
+                  </span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: hoveredCategory.color, marginTop: '2px' }}>
+                    {hoveredCategory.percentage.toFixed(1)}%
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Total
+                  </span>
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px', wordBreak: 'break-all' }}>
+                    {formatCurrency(totalAmount)}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         )}
 

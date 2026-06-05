@@ -5,10 +5,11 @@ import {
   PlusCircle,
   Wallet,
   Sun,
-  Moon
+  Moon,
+  X
 } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, onAddExpenseClick, theme, setTheme }) => {
+const Sidebar = ({ activeTab, setActiveTab, onAddExpenseClick, theme, setTheme, isOpen, setIsOpen }) => {
   const menuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'expenses', name: 'Expenses', icon: Receipt },
@@ -21,16 +22,20 @@ const Sidebar = ({ activeTab, setActiveTab, onAddExpenseClick, theme, setTheme }
     } else {
       setActiveTab(item.id);
     }
+    setIsOpen(false);
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div>
         <div className="sidebar-brand">
           <div className="sidebar-logo-icon">
             <Wallet size={18} />
           </div>
           <span>Expense Tracker</span>
+          <button className="sidebar-close-btn" onClick={() => setIsOpen(false)} title="Close Menu">
+            <X size={18} />
+          </button>
         </div>
 
         <ul className="sidebar-menu">

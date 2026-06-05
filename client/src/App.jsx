@@ -6,8 +6,8 @@ import CategorySummary from './components/CategorySummary';
 import ExpenseTable from './components/ExpenseTable';
 import ExpenseForm from './components/ExpenseForm';
 import BudgetModal from './components/BudgetModal';
-import { exportToCSV } from './utils/helpers';
-import { AlertTriangle, User, Save, PieChart, Calendar, X } from 'lucide-react';
+import { exportToCSV, formatDate } from './utils/helpers';
+import { AlertTriangle, User, Save, PieChart, Calendar, X, ChevronDown, Check, Menu } from 'lucide-react';
 import avatar from './assets/avatar.png';
 
 const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
@@ -16,63 +16,63 @@ const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
 const generateMockExpenses = () => {
   const list = [];
   
-  // 1. June 2025 Expenses (28 items, sum = 12540.50)
+  // 1. June 2026 Expenses (28 items, sum = 12540.50)
   // Visible items in the table
-  list.push({ id: 1, date: '2025-06-03', description: 'Lunch with friends', category: 'Food', amount: 450.00, note: 'Pizza and drinks' });
-  list.push({ id: 2, date: '2025-06-02', description: 'Metro Card Recharge', category: 'Transport', amount: 300.00, note: 'Monthly pass' });
-  list.push({ id: 3, date: '2025-06-02', description: 'Electricity Bill', category: 'Bills', amount: 3200.00, note: 'May month bill' });
-  list.push({ id: 4, date: '2025-06-01', description: 'Movie Ticket', category: 'Entertainment', amount: 450.00, note: 'Spider-Man movie' });
-  list.push({ id: 5, date: '2025-06-01', description: 'Groceries', category: 'Food', amount: 780.50, note: 'Weekly groceries' });
+  list.push({ id: 1, date: '2026-06-03', description: 'Lunch with friends', category: 'Food', amount: 450.00, note: 'Pizza and drinks' });
+  list.push({ id: 2, date: '2026-06-02', description: 'Metro Card Recharge', category: 'Transport', amount: 300.00, note: 'Monthly pass' });
+  list.push({ id: 3, date: '2026-06-02', description: 'Electricity Bill', category: 'Bills', amount: 3200.00, note: 'May month bill' });
+  list.push({ id: 4, date: '2026-06-01', description: 'Movie Ticket', category: 'Entertainment', amount: 450.00, note: 'Spider-Man movie' });
+  list.push({ id: 5, date: '2026-06-01', description: 'Groceries', category: 'Food', amount: 780.50, note: 'Weekly groceries' });
 
-  // Other June 2025 items to reach exactly 28 items and specific category sums:
+  // Other June 2026 items to reach exactly 28 items and specific category sums:
   // Food target: 4250. Current: 450 + 780.50 = 1230.50. Remaining: 3019.50 (6 items)
-  list.push({ id: 6, date: '2025-06-03', description: 'Office lunch', category: 'Food', amount: 400.00, note: '' });
-  list.push({ id: 7, date: '2025-06-02', description: 'Dinner Date', category: 'Food', amount: 1500.00, note: 'Fine dining' });
-  list.push({ id: 8, date: '2025-06-02', description: 'Morning Coffee', category: 'Food', amount: 150.00, note: 'Starbucks' });
-  list.push({ id: 9, date: '2025-06-01', description: 'Snacks & Ice Cream', category: 'Food', amount: 500.00, note: '' });
-  list.push({ id: 10, date: '2025-06-01', description: 'Organic Fruits', category: 'Food', amount: 400.00, note: '' });
-  list.push({ id: 11, date: '2025-06-01', description: 'Juice Bar', category: 'Food', amount: 69.50, note: '' }); // Food total = 4250.00
+  list.push({ id: 6, date: '2026-06-03', description: 'Office lunch', category: 'Food', amount: 400.00, note: '' });
+  list.push({ id: 7, date: '2026-06-02', description: 'Dinner Date', category: 'Food', amount: 1500.00, note: 'Fine dining' });
+  list.push({ id: 8, date: '2026-06-02', description: 'Morning Coffee', category: 'Food', amount: 150.00, note: 'Starbucks' });
+  list.push({ id: 9, date: '2026-06-01', description: 'Snacks & Ice Cream', category: 'Food', amount: 500.00, note: '' });
+  list.push({ id: 10, date: '2026-06-01', description: 'Organic Fruits', category: 'Food', amount: 400.00, note: '' });
+  list.push({ id: 11, date: '2026-06-01', description: 'Juice Bar', category: 'Food', amount: 69.50, note: '' }); // Food total = 4250.00
 
   // Transport target: 2150. Current: 300. Remaining: 1850 (4 items)
-  list.push({ id: 12, date: '2025-06-03', description: 'Cab Ride to Office', category: 'Transport', amount: 350.00, note: 'Uber' });
-  list.push({ id: 13, date: '2025-06-02', description: 'Weekly Fuel refill', category: 'Transport', amount: 1000.00, note: 'Petrol' });
-  list.push({ id: 14, date: '2025-06-01', description: 'Highway Toll', category: 'Transport', amount: 200.00, note: '' });
-  list.push({ id: 15, date: '2025-06-01', description: 'Airport Shuttle', category: 'Transport', amount: 300.00, note: '' }); // Transport total = 2150.00
+  list.push({ id: 12, date: '2026-06-03', description: 'Cab Ride to Office', category: 'Transport', amount: 350.00, note: 'Uber' });
+  list.push({ id: 13, date: '2026-06-02', description: 'Weekly Fuel refill', category: 'Transport', amount: 1000.00, note: 'Petrol' });
+  list.push({ id: 14, date: '2026-06-01', description: 'Highway Toll', category: 'Transport', amount: 200.00, note: '' });
+  list.push({ id: 15, date: '2026-06-01', description: 'Airport Shuttle', category: 'Transport', amount: 300.00, note: '' }); // Transport total = 2150.00
 
   // Bills target: 3200. Current: 3200. Remaining: 0 (0 items)
   // (Bills total = 3200.00)
 
   // Entertainment target: 1650. Current: 450. Remaining: 1200 (3 items)
-  list.push({ id: 16, date: '2025-06-02', description: 'Netflix subscription', category: 'Entertainment', amount: 400.00, note: 'Premium UHD' });
-  list.push({ id: 17, date: '2025-06-02', description: 'Concert Ticket', category: 'Entertainment', amount: 600.00, note: 'Local band' });
-  list.push({ id: 18, date: '2025-06-01', description: 'Gaming Arcade', category: 'Entertainment', amount: 200.00, note: 'Timezone' }); // Entertainment total = 1650.00
+  list.push({ id: 16, date: '2026-06-02', description: 'Netflix subscription', category: 'Entertainment', amount: 400.00, note: 'Premium UHD' });
+  list.push({ id: 17, date: '2026-06-02', description: 'Concert Ticket', category: 'Entertainment', amount: 600.00, note: 'Local band' });
+  list.push({ id: 18, date: '2026-06-01', description: 'Gaming Arcade', category: 'Entertainment', amount: 200.00, note: 'Timezone' }); // Entertainment total = 1650.00
 
   // Other target: 1290.50. Remaining: 1290.50 (10 items)
-  list.push({ id: 19, date: '2025-06-03', description: 'Haircut & Grooming', category: 'Other', amount: 350.00, note: '' });
-  list.push({ id: 20, date: '2025-06-03', description: 'Notebooks', category: 'Other', amount: 100.00, note: 'Stationery' });
-  list.push({ id: 21, date: '2025-06-02', description: 'Gift for mom', category: 'Other', amount: 500.00, note: 'Flowers' });
-  list.push({ id: 22, date: '2025-06-02', description: 'Laundry service', category: 'Other', amount: 120.00, note: '' });
-  list.push({ id: 23, date: '2025-06-02', description: 'Gym Shaker Bottle', category: 'Other', amount: 100.00, note: '' });
-  list.push({ id: 24, date: '2025-06-01', description: 'Key Ring', category: 'Other', amount: 20.50, note: '' });
-  list.push({ id: 25, date: '2025-06-01', description: 'Mobile cover', category: 'Other', amount: 50.00, note: '' });
-  list.push({ id: 26, date: '2025-06-01', description: 'Shoe polish', category: 'Other', amount: 30.00, note: '' });
-  list.push({ id: 27, date: '2025-06-01', description: 'New socks', category: 'Other', amount: 10.00, note: '' });
-  list.push({ id: 28, date: '2025-06-01', description: 'Postage stamps', category: 'Other', amount: 10.00, note: '' }); // Other total = 1290.50
+  list.push({ id: 19, date: '2026-06-03', description: 'Haircut & Grooming', category: 'Other', amount: 350.00, note: '' });
+  list.push({ id: 20, date: '2026-06-03', description: 'Notebooks', category: 'Other', amount: 100.00, note: 'Stationery' });
+  list.push({ id: 21, date: '2026-06-02', description: 'Gift for mom', category: 'Other', amount: 500.00, note: 'Flowers' });
+  list.push({ id: 22, date: '2026-06-02', description: 'Laundry service', category: 'Other', amount: 120.00, note: '' });
+  list.push({ id: 23, date: '2026-06-02', description: 'Gym Shaker Bottle', category: 'Other', amount: 100.00, note: '' });
+  list.push({ id: 24, date: '2026-06-01', description: 'Key Ring', category: 'Other', amount: 20.50, note: '' });
+  list.push({ id: 25, date: '2026-06-01', description: 'Mobile cover', category: 'Other', amount: 50.00, note: '' });
+  list.push({ id: 26, date: '2026-06-01', description: 'Shoe polish', category: 'Other', amount: 30.00, note: '' });
+  list.push({ id: 27, date: '2026-06-01', description: 'New socks', category: 'Other', amount: 10.00, note: '' });
+  list.push({ id: 28, date: '2026-06-01', description: 'Postage stamps', category: 'Other', amount: 10.00, note: '' }); // Other total = 1290.50
 
   // Total June count: 28. Total June spend: 12540.50
 
-  // 2. May 2025 Expenses (23 items, sum = 10609.56)
+  // 2. May 2026 Expenses (23 items, sum = 10609.56)
   // Let's add 23 items in May so that the trend shows exactly +5 count, and +18.2% spent.
-  list.push({ id: 101, date: '2025-05-15', description: 'House Rent', category: 'Bills', amount: 8000.00, note: 'Monthly rent' });
-  list.push({ id: 102, date: '2025-05-20', description: 'Weekly Groceries', category: 'Food', amount: 1500.00, note: '' });
-  list.push({ id: 103, date: '2025-05-22', description: 'Car Fuel refill', category: 'Transport', amount: 800.00, note: '' });
-  list.push({ id: 104, date: '2025-05-25', description: 'Fast Food Dinner', category: 'Food', amount: 209.56, note: '' });
+  list.push({ id: 101, date: '2026-05-15', description: 'House Rent', category: 'Bills', amount: 8000.00, note: 'Monthly rent' });
+  list.push({ id: 102, date: '2026-05-20', description: 'Weekly Groceries', category: 'Food', amount: 1500.00, note: '' });
+  list.push({ id: 103, date: '2026-05-22', description: 'Car Fuel refill', category: 'Transport', amount: 800.00, note: '' });
+  list.push({ id: 104, date: '2026-05-25', description: 'Fast Food Dinner', category: 'Food', amount: 209.56, note: '' });
   
   // 19 small items to make up 23 items total in May
   for (let i = 105; i <= 123; i++) {
     list.push({
       id: i,
-      date: `2025-05-${String(i - 100).padStart(2, '0')}`,
+      date: `2026-05-${String(i - 100).padStart(2, '0')}`,
       description: `Small Purchase ${i - 104}`,
       category: 'Other',
       amount: 5.00, // Very small purchases
@@ -96,8 +96,29 @@ const DEFAULT_BUDGETS = {
   Other: 1500
 };
 
+const getPrevMonthRange = (startStr, endStr) => {
+  if (!startStr || !endStr) return { start: '', end: '' };
+  const s = new Date(startStr);
+  const e = new Date(endStr);
+  
+  const prevS = new Date(s.getFullYear(), s.getMonth() - 1, s.getDate());
+  const prevE = new Date(e.getFullYear(), e.getMonth() - 1, e.getDate());
+  
+  const format = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  return {
+    start: format(prevS),
+    end: format(prevE)
+  };
+};
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState(DEFAULT_BUDGETS);
@@ -113,17 +134,28 @@ const App = () => {
   
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [startDate, setStartDate] = useState('2025-06-01');
-  const [endDate, setEndDate] = useState('2025-06-03');
+  const [startDate, setStartDate] = useState('2026-06-01');
+  const [endDate, setEndDate] = useState('2026-06-03');
   const [timePeriod, setTimePeriod] = useState('this-month'); // for category chart filter
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
 
+  // Dashboard-specific Date Filter State
+  const [dashStartDate, setDashStartDate] = useState('2026-06-01');
+  const [dashEndDate, setDashEndDate] = useState('2026-06-30');
+  const [showDashDatePopover, setShowDashDatePopover] = useState(false);
+  const dashDatePopoverRef = useRef(null);
+  const [tempDashStartDate, setTempDashStartDate] = useState('2026-06-01');
+  const [tempDashEndDate, setTempDashEndDate] = useState('2026-06-30');
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
+      }
+      if (dashDatePopoverRef.current && !dashDatePopoverRef.current.contains(event.target)) {
+        setShowDashDatePopover(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -147,7 +179,7 @@ const App = () => {
     if (localExpenses) {
       try {
         const parsed = JSON.parse(localExpenses);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(e => e && e.date && e.category && typeof e.amount === 'number')) {
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(e => e && e.date && e.category && typeof e.amount === 'number') && parsed.some(e => e.date.includes('2026'))) {
           setExpenses(parsed);
           validExpensesLoaded = true;
         }
@@ -254,46 +286,82 @@ const App = () => {
     exportToCSV(filtered);
   };
 
+  const getDashDateLabel = () => {
+    if (dashStartDate === '2026-06-01' && dashEndDate === '2026-06-30') {
+      return 'This Month (Jun 1 - Jun 30, 2026)';
+    }
+    if (dashStartDate === '2026-05-01' && dashEndDate === '2026-05-31') {
+      return 'Last Month (May 1 - May 31, 2026)';
+    }
+    if (!dashStartDate && !dashEndDate) {
+      return 'All Time';
+    }
+    return `${formatDate(dashStartDate)} - ${formatDate(dashEndDate)}`;
+  };
+
   // 4. Calculations & Stats
-  // We compute statistics for "This Month" (June 2025) and "Last Month" (May 2025)
+  // We compute statistics dynamically based on the selected dashboard date range
   const getStats = () => {
-    const juneExpenses = expenses.filter(e => e && e.date && typeof e.date === 'string' && e.date.startsWith('2025-06'));
-    const mayExpenses = expenses.filter(e => e && e.date && typeof e.date === 'string' && e.date.startsWith('2025-05'));
+    // Current period expenses
+    const currentExpenses = expenses.filter(e => {
+      if (!e || !e.date || typeof e.date !== 'string') return false;
+      if (dashStartDate && e.date < dashStartDate) return false;
+      if (dashEndDate && e.date > dashEndDate) return false;
+      return true;
+    });
 
-    // June spent
-    const totalSpentJune = juneExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-    const countJune = juneExpenses.length;
+    // Previous period range
+    const prevRange = getPrevMonthRange(dashStartDate, dashEndDate);
+    const prevExpenses = expenses.filter(e => {
+      if (!e || !e.date || typeof e.date !== 'string') return false;
+      if (prevRange.start && e.date < prevRange.start) return false;
+      if (prevRange.end && e.date > prevRange.end) return false;
+      return true;
+    });
 
-    // May spent
-    const totalSpentMay = mayExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-    const countMay = mayExpenses.length;
+    // Current spent
+    const totalSpentCurrent = currentExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const countCurrent = currentExpenses.length;
 
-    // Spent % change: ((June - May) / May) * 100
+    // Previous spent
+    const totalSpentPrev = prevExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const countPrev = prevExpenses.length;
+
+    // Spent % change: ((Current - Prev) / Prev) * 100
     let spentChange = 0;
-    if (totalSpentMay > 0) {
-      spentChange = ((totalSpentJune - totalSpentMay) / totalSpentMay) * 100;
+    if (totalSpentPrev > 0) {
+      spentChange = ((totalSpentCurrent - totalSpentPrev) / totalSpentPrev) * 100;
     }
 
-    // Count change: June - May
-    const countChange = countJune - countMay;
+    // Count change: Current - Prev
+    const countChange = countCurrent - countPrev;
 
-    // Highest expense in June
+    // Highest expense in Current
     let highestSpent = 0;
     let highestDate = '';
-    juneExpenses.forEach(e => {
+    currentExpenses.forEach(e => {
       if (e && typeof e.amount === 'number' && e.amount > highestSpent) {
         highestSpent = e.amount;
         highestDate = e.date;
       }
     });
 
-    // Daily Average: June spent / 30 days
-    const dailyAvg = totalSpentJune / 30;
+    // Daily Average: Current spent / total days in period
+    let dailyAvg = 0;
+    if (dashStartDate && dashEndDate) {
+      const startD = new Date(dashStartDate);
+      const endD = new Date(dashEndDate);
+      const diffTime = Math.abs(endD - startD);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      dailyAvg = totalSpentCurrent / (diffDays || 1);
+    } else {
+      dailyAvg = totalSpentCurrent / 30; // fallback default
+    }
 
     return {
-      totalSpent: totalSpentJune,
+      totalSpent: totalSpentCurrent,
       spentChange,
-      totalCount: countJune,
+      totalCount: countCurrent,
       countChange,
       highestSpent,
       highestDate,
@@ -303,14 +371,14 @@ const App = () => {
 
   const stats = getStats();
 
-  // Calculate totals per category based on Category Chart timePeriod selection
+  // Calculate totals per category based on selected dashboard date range
   const getCategoryChartData = () => {
-    let filtered = expenses.filter(e => e && e.date && typeof e.date === 'string');
-    if (timePeriod === 'this-month') {
-      filtered = filtered.filter(e => e.date.startsWith('2025-06'));
-    } else if (timePeriod === 'last-month') {
-      filtered = filtered.filter(e => e.date.startsWith('2025-05'));
-    }
+    const filtered = expenses.filter(e => {
+      if (!e || !e.date || typeof e.date !== 'string') return false;
+      if (dashStartDate && e.date < dashStartDate) return false;
+      if (dashEndDate && e.date > dashEndDate) return false;
+      return true;
+    });
 
     // Calculate sums
     const sums = { Food: 0, Transport: 0, Bills: 0, Entertainment: 0, Other: 0 };
@@ -332,7 +400,7 @@ const App = () => {
   // Exceeded budgets are checked against current month's expenses
   const exceededBudgets = CATEGORIES.map(cat => {
     const juneSpentInCat = expenses
-      .filter(e => e && e.date && typeof e.date === 'string' && e.date.startsWith('2025-06') && e.category === cat)
+      .filter(e => e && e.date && typeof e.date === 'string' && e.date.startsWith('2026-06') && e.category === cat)
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
     const limit = budgets[cat] || 0;
     return {
@@ -372,28 +440,134 @@ const App = () => {
         onAddExpenseClick={openAddModal}
         theme={theme}
         setTheme={setTheme}
+        isOpen={isMobileSidebarOpen}
+        setIsOpen={setIsMobileSidebarOpen}
       />
+
+      {isMobileSidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setIsMobileSidebarOpen(false)} />
+      )}
 
       {/* Main Content Area */}
       <main className="main-content">
         {/* Top Header */}
         <header className="header-section">
-          <div className="header-left">
-            <h1>
-              {activeTab === 'dashboard' && 'Dashboard'}
-              {activeTab === 'expenses' && 'All Expenses'}
-            </h1>
-            <p>
-              {activeTab === 'dashboard' && 'Overview of your expenses'}
-              {activeTab === 'expenses' && 'Detailed log of your spending'}
-            </p>
+          <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button className="mobile-menu-toggle-btn" onClick={() => setIsMobileSidebarOpen(true)} title="Open navigation Menu">
+              <Menu size={22} />
+            </button>
+            <div className="header-titles">
+              <h1 style={{ margin: 0 }}>
+                {activeTab === 'dashboard' && 'Dashboard'}
+                {activeTab === 'expenses' && 'All Expenses'}
+              </h1>
+              <p style={{ margin: '2px 0 0 0' }}>
+                {activeTab === 'dashboard' && 'Overview of your expenses'}
+                {activeTab === 'expenses' && 'Detailed log of your spending'}
+              </p>
+            </div>
           </div>
 
           <div className="header-right">
-            <button className="date-filter-btn">
-              <Calendar size={16} />
-              <span>This Month (Jun 1 - Jun 3)</span>
-            </button>
+            {activeTab === 'dashboard' && (
+              <div className="profile-dropdown-container" ref={dashDatePopoverRef}>
+                <button
+                  className="date-filter-btn"
+                  onClick={() => setShowDashDatePopover(!showDashDatePopover)}
+                >
+                  <Calendar size={16} style={{ color: 'var(--text-secondary)' }} />
+                  <span>{getDashDateLabel()}</span>
+                  <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+                </button>
+
+                {showDashDatePopover && (
+                  <div className="custom-date-popover" style={{ right: 0, top: 'calc(100% + 8px)', width: '220px' }}>
+                    <button
+                      className={`date-preset-btn ${dashStartDate === '2026-06-01' && dashEndDate === '2026-06-30' ? 'active' : ''}`}
+                      onClick={() => {
+                        setDashStartDate('2026-06-01');
+                        setDashEndDate('2026-06-30');
+                        setShowDashDatePopover(false);
+                      }}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', width: '-webkit-fill-available' }}
+                    >
+                      <span>This Month</span>
+                      {dashStartDate === '2026-06-01' && dashEndDate === '2026-06-30' && <Check size={14} style={{ color: 'var(--text-active)' }} />}
+                    </button>
+                    <button
+                      className={`date-preset-btn ${dashStartDate === '2026-05-01' && dashEndDate === '2026-05-31' ? 'active' : ''}`}
+                      onClick={() => {
+                        setDashStartDate('2026-05-01');
+                        setDashEndDate('2026-05-31');
+                        setShowDashDatePopover(false);
+                      }}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', width: '-webkit-fill-available' }}
+                    >
+                      <span>Last Month</span>
+                      {dashStartDate === '2026-05-01' && dashEndDate === '2026-05-31' && <Check size={14} style={{ color: 'var(--text-active)' }} />}
+                    </button>
+                    <button
+                      className={`date-preset-btn ${!dashStartDate && !dashEndDate ? 'active' : ''}`}
+                      onClick={() => {
+                        setDashStartDate('');
+                        setDashEndDate('');
+                        setShowDashDatePopover(false);
+                      }}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', width: '-webkit-fill-available' }}
+                    >
+                      <span>All Time</span>
+                      {!dashStartDate && !dashEndDate && <Check size={14} style={{ color: 'var(--text-active)' }} />}
+                    </button>
+                    
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        setDashStartDate(tempDashStartDate);
+                        setDashEndDate(tempDashEndDate);
+                        setShowDashDatePopover(false);
+                      }}
+                      className="custom-date-inputs"
+                      style={{ marginTop: '8px', borderTop: '1px solid var(--border-color)', paddingTop: '8px' }}
+                    >
+                      <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Custom Range</label>
+                      <div className="custom-date-row" style={{ marginBottom: '6px' }}>
+                        <input
+                          type="date"
+                          value={tempDashStartDate}
+                          onChange={(e) => setTempDashStartDate(e.target.value)}
+                          style={{ width: '100%', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div className="custom-date-row" style={{ marginBottom: '8px' }}>
+                        <input
+                          type="date"
+                          value={tempDashEndDate}
+                          onChange={(e) => setTempDashEndDate(e.target.value)}
+                          style={{ width: '100%', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div className="custom-date-popover-actions">
+                        <button
+                          type="button"
+                          className="date-popover-btn modal-btn-cancel"
+                          onClick={() => setShowDashDatePopover(false)}
+                          style={{ padding: '4px 8px' }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="date-popover-btn modal-btn-submit"
+                          style={{ padding: '4px 8px' }}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="profile-dropdown-container" ref={profileMenuRef}>
               <img
@@ -506,7 +680,7 @@ const App = () => {
 
         {/* Global Footer */}
         <footer className="footer-text">
-          &copy; 2025 Expense Tracker. All rights reserved.
+          &copy; 2026 Expense Tracker. All rights reserved.
         </footer>
       </main>
 
