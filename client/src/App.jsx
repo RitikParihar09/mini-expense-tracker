@@ -144,8 +144,19 @@ const App = () => {
   
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [startDate, setStartDate] = useState('2026-06-01');
-  const [endDate, setEndDate] = useState('2026-06-03');
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}-01`;
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const lastDay = new Date(year, d.getMonth() + 1, 0).getDate();
+    return `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
+  });
   const [timePeriod, setTimePeriod] = useState('this-month'); // for category chart filter
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
