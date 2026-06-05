@@ -1,11 +1,67 @@
 [
   {
+    "id": 1780683638692,
+    "date": "2026-04-05",
+    "description": "lunch",
+    "category": "Food",
+    "amount": 200,
+    "note": ""
+  },
+  {
+    "id": 1780680370827,
+    "date": "2026-06-01",
+    "description": "YouTube",
+    "category": "Entertainment",
+    "amount": 89,
+    "note": ""
+  },
+  {
+    "id": 1780680346828,
+    "date": "2026-06-04",
+    "description": "zepto",
+    "category": "Other",
+    "amount": 200,
+    "note": ""
+  },
+  {
+    "id": 1780680330844,
+    "date": "2026-06-03",
+    "description": "shift",
+    "category": "Transport",
+    "amount": 300,
+    "note": ""
+  },
+  {
+    "id": 1780680317409,
+    "date": "2026-06-03",
+    "description": "lunch and dinner",
+    "category": "Food",
+    "amount": 140,
+    "note": ""
+  },
+  {
+    "id": 1780680281244,
+    "date": "2026-06-02",
+    "description": "lunch and dinner",
+    "category": "Food",
+    "amount": 120,
+    "note": ""
+  },
+  {
+    "id": 1780680266200,
+    "date": "2026-06-01",
+    "description": "lunch and dinner",
+    "category": "Food",
+    "amount": 120,
+    "note": ""
+  },
+  {
     "id": 1780672671885,
     "date": "2026-06-05",
-    "description": "Taxi ride to office",
+    "description": "Taxi ride to office using rapid bike option",
     "category": "Transport",
     "amount": 250,
-    "note": "Met with client"
+    "note": "Met with client and come back to home."
   },
   {
     "id": 1780672146956,
@@ -21,6 +77,166 @@
     "description": "lunch and dinner",
     "category": "Food",
     "amount": 140,
+    "note": ""
+  },
+  {
+    "id": 1780590000001,
+    "date": "2026-05-01",
+    "description": "Groceries",
+    "category": "Food",
+    "amount": 450,
+    "note": "Weekly essential groceries"
+  },
+  {
+    "id": 1780590000002,
+    "date": "2026-05-02",
+    "description": "Petrol",
+    "category": "Transport",
+    "amount": 1000,
+    "note": "Car tank full"
+  },
+  {
+    "id": 1780590000003,
+    "date": "2026-05-03",
+    "description": "Netflix",
+    "category": "Entertainment",
+    "amount": 499,
+    "note": "Monthly subscription"
+  },
+  {
+    "id": 1780590000004,
+    "date": "2026-05-05",
+    "description": "Electricity Bill",
+    "category": "Bills",
+    "amount": 2800,
+    "note": "April month usage"
+  },
+  {
+    "id": 1780590000005,
+    "date": "2026-05-06",
+    "description": "Lunch with colleague",
+    "category": "Food",
+    "amount": 350,
+    "note": "Dominos pizza"
+  },
+  {
+    "id": 1780590000006,
+    "date": "2026-05-08",
+    "description": "Uber Ride",
+    "category": "Transport",
+    "amount": 180,
+    "note": "Commute to office"
+  },
+  {
+    "id": 1780590000007,
+    "date": "2026-05-10",
+    "description": "Gym membership",
+    "category": "Other",
+    "amount": 1500,
+    "note": "Monthly renewal fee"
+  },
+  {
+    "id": 1780590000008,
+    "date": "2026-05-12",
+    "description": "Coffee",
+    "category": "Food",
+    "amount": 120,
+    "note": "Starbucks latte"
+  },
+  {
+    "id": 1780590000009,
+    "date": "2026-05-13",
+    "description": "Wi-Fi Bill",
+    "category": "Bills",
+    "amount": 799,
+    "note": "Airtel Fiber bill"
+  },
+  {
+    "id": 1780590000010,
+    "date": "2026-05-15",
+    "description": "Movie night",
+    "category": "Entertainment",
+    "amount": 320,
+    "note": "Popcorn & ticket"
+  },
+  {
+    "id": 1780590000011,
+    "date": "2026-05-16",
+    "description": "Medicine",
+    "category": "Other",
+    "amount": 450,
+    "note": "Multivitamins"
+  },
+  {
+    "id": 1780590000012,
+    "date": "2026-05-18",
+    "description": "Dinner with family",
+    "category": "Food",
+    "amount": 1800,
+    "note": "Restaurant dinner"
+  },
+  {
+    "id": 1780590000013,
+    "date": "2026-05-20",
+    "description": "Auto fare",
+    "category": "Transport",
+    "amount": 80,
+    "note": "Local travel"
+  },
+  {
+    "id": 1780590000014,
+    "date": "2026-05-21",
+    "description": "Books",
+    "category": "Other",
+    "amount": 600,
+    "note": "Self-help books"
+  },
+  {
+    "id": 1780590000015,
+    "date": "2026-05-22",
+    "description": "Ice cream",
+    "category": "Food",
+    "amount": 150,
+    "note": "Dessert"
+  },
+  {
+    "id": 1780590000016,
+    "date": "2026-05-23",
+    "description": "Metro recharge",
+    "category": "Transport",
+    "amount": 200,
+    "note": ""
+  },
+  {
+    "id": 1780590000017,
+    "date": "2026-05-24",
+    "description": "Mobile recharge",
+    "category": "Bills",
+    "amount": 399,
+    "note": "Prepaid monthly pack"
+  },
+  {
+    "id": 1780590000018,
+    "date": "2026-05-25",
+    "description": "Game purchase",
+    "category": "Entertainment",
+    "amount": 1200,
+    "note": "Steam sale"
+  },
+  {
+    "id": 1780590000019,
+    "date": "2026-05-27",
+    "description": "Stationery",
+    "category": "Other",
+    "amount": 250,
+    "note": "Pens and notebooks"
+  },
+  {
+    "id": 1780590000020,
+    "date": "2026-05-28",
+    "description": "Snacks",
+    "category": "Food",
+    "amount": 90,
     "note": ""
   }
 ]

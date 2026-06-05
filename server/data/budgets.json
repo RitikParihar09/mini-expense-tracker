@@ -1,7 +1,7 @@
 {
   "Food": 5000,
   "Transport": 3000,
-  "Bills": 8200,
+  "Bills": 2000,
   "Entertainment": 2000,
-  "Other": 1500
+  "Other": 100
 }

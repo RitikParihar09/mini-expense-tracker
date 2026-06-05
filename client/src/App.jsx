@@ -4,6 +4,7 @@ import SummaryCards from './components/SummaryCards';
 import CategoryChart from './components/CategoryChart';
 import CategorySummary from './components/CategorySummary';
 import ExpenseTable from './components/ExpenseTable';
+import DailyTrendChart from './components/DailyTrendChart';
 import ExpenseForm from './components/ExpenseForm';
 import BudgetModal from './components/BudgetModal';
 import { exportToCSV, formatDate } from './utils/helpers';
@@ -355,6 +356,8 @@ const App = () => {
     };
   }).filter(b => b.exceeded);
 
+  const activeExceeded = exceededBudgets.filter(b => !dismissedWarnings.includes(b.category));
+
   // Handle saving budgets configuration
   const handleSaveBudgets = (e) => {
     e.preventDefault();
@@ -538,54 +541,59 @@ const App = () => {
         {/* Dynamic Views */}
         {activeTab === 'dashboard' && (
           <>
-            {/* Budget warnings if any */}
-            {exceededBudgets
-              .filter(b => !dismissedWarnings.includes(b.category))
-              .map(b => (
-                <div key={b.category} className="budget-warning-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <AlertTriangle className="budget-warning-icon" />
-                    <div className="budget-warning-details">
-                      <span className="budget-warning-title">Budget Limit Exceeded!</span>
-                      <span className="budget-warning-desc">
-                        Your spending in <strong>{b.category}</strong> (₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}) has exceeded your monthly budget of ₹{b.limit.toLocaleString('en-IN', { minimumFractionDigits: 2 })} by <strong>₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>!
-                      </span>
+            {/* KPI Summary Cards */}
+            <SummaryCards stats={stats} isAllTime={!dashStartDate && !dashEndDate} />
+
+            {/* Consolidated Budget warnings if any */}
+            {activeExceeded.length > 0 && (
+              <div className="budget-warning-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                  <AlertTriangle className="budget-warning-icon" style={{ marginTop: '2px' }} />
+                  <div className="budget-warning-details">
+                    <span className="budget-warning-title">Budget Limit Exceeded!</span>
+                    <div className="budget-warning-desc" style={{ marginTop: '6px' }}>
+                      {activeExceeded.map(b => (
+                        <div key={b.category} style={{ margin: '4px 0' }}>
+                          Your spending in <strong>{b.category}</strong> (₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}) has exceeded your monthly budget of ₹{b.limit.toLocaleString('en-IN', { minimumFractionDigits: 2 })} by <strong>₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>!
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <button
-                    onClick={() => setDismissedWarnings(prev => [...prev, b.category])}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#d97706',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '4px',
-                      borderRadius: 'var(--radius-full)',
-                      transition: 'background-color 0.2s'
-                    }}
-                    title="Dismiss warning"
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.1)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    <X size={18} />
-                  </button>
                 </div>
-              ))
-            }
-
-            {/* KPI Summary Cards */}
-            <SummaryCards stats={stats} />
+                <button
+                  onClick={() => setDismissedWarnings(prev => [...prev, ...activeExceeded.map(b => b.category)])}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#d97706',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px',
+                    borderRadius: 'var(--radius-full)',
+                    transition: 'background-color 0.2s',
+                    marginTop: '2px'
+                  }}
+                  title="Dismiss all warnings"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            )}
 
             {/* Middle Section: Chart + Progress Summary */}
             <div className="dashboard-middle-grid">
               <CategoryChart
                 data={categoryChartData}
-                timePeriod={timePeriod}
-                setTimePeriod={setTimePeriod}
               />
               <CategorySummary data={categoryChartData} onEditBudgetClick={() => setIsBudgetModalOpen(true)} />
+            </div>
+
+            {/* Daily Trend Bar Chart */}
+            <div style={{ marginTop: '24px' }}>
+              <DailyTrendChart expenses={expenses} />
             </div>
 
             {/* Bottom Section: Recent Expenses Table */}
@@ -623,7 +631,7 @@ const App = () => {
 
         {/* Global Footer */}
         <footer className="footer-text">
-          &copy; 2026 Expense Tracker. All rights reserved.
+          &copy; 2026 Mini Expense Tracker. All rights reserved. Developed by Ritik with ❤️
         </footer>
       </main>
 

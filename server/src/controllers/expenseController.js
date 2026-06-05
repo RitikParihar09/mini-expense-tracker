@@ -2,21 +2,34 @@ const db = require('../utils/dbHelper');
 
 const getPrevMonthRange = (startStr, endStr) => {
   if (!startStr || !endStr) return { start: '', end: '' };
-  const s = new Date(startStr);
-  const e = new Date(endStr);
   
-  const prevS = new Date(s.getFullYear(), s.getMonth() - 1, s.getDate());
-  const prevE = new Date(e.getFullYear(), e.getMonth() - 1, e.getDate());
+  const [startY, startM, startD] = startStr.split('-').map(Number);
+  const [endY, endM, endD] = endStr.split('-').map(Number);
   
-  const format = (d) => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  let prevStartY = startY;
+  let prevStartM = startM - 1;
+  if (prevStartM === 0) {
+    prevStartM = 12;
+    prevStartY -= 1;
+  }
+  
+  let prevEndY = endY;
+  let prevEndM = endM - 1;
+  if (prevEndM === 0) {
+    prevEndM = 12;
+    prevEndY -= 1;
+  }
+  
+  const lastDayOfPrevMonth = new Date(prevEndY, prevEndM, 0).getDate();
+  const adjustedEndD = Math.min(endD, lastDayOfPrevMonth);
+  
+  const format = (y, m, d) => {
+    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   };
+  
   return {
-    start: format(prevS),
-    end: format(prevE)
+    start: format(prevStartY, prevStartM, startD),
+    end: format(prevEndY, prevEndM, adjustedEndD)
   };
 };
 
@@ -54,30 +67,62 @@ const getStats = async (req, res) => {
     const { startDate, endDate } = req.query;
     const expenses = await db.readExpenses();
 
-    const start = startDate || '2026-06-01';
-    const end = endDate || '2026-06-30';
+    const isAllTime = !startDate || !endDate;
+    let start = startDate;
+    let end = endDate;
+
+    if (isAllTime) {
+      if (expenses.length > 0) {
+        const dates = expenses.map(e => new Date(e.date).getTime());
+        const minDate = new Date(Math.min(...dates));
+        const maxDate = new Date(Math.max(...dates));
+        const format = (d) => {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+        start = format(minDate);
+        end = format(maxDate);
+      } else {
+        start = '2026-06-01';
+        end = '2026-06-30';
+      }
+    }
 
     const currentExpenses = expenses.filter(e => e && e.date && e.date >= start && e.date <= end);
 
-    const prevRange = getPrevMonthRange(start, end);
-    const prevExpenses = expenses.filter(e => e && e.date && e.date >= prevRange.start && e.date <= prevRange.end);
+    // MoM stats
+    let spentChange = 0;
+    let countChange = 0;
+    let isNewSpent = false;
+    let isNewCount = false;
+
+    if (!isAllTime) {
+      const prevRange = getPrevMonthRange(start, end);
+      const prevExpenses = expenses.filter(e => e && e.date && e.date >= prevRange.start && e.date <= prevRange.end);
+      const totalSpentPrev = prevExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+      const countPrev = prevExpenses.length;
+      const totalSpentCurrent = currentExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+      // spent change calculation
+      if (totalSpentPrev > 0) {
+        spentChange = ((totalSpentCurrent - totalSpentPrev) / totalSpentPrev) * 100;
+      } else if (totalSpentCurrent > 0) {
+        isNewSpent = true;
+      }
+
+      // count change calculation
+      if (countPrev > 0) {
+        countChange = currentExpenses.length - countPrev;
+      } else if (currentExpenses.length > 0) {
+        isNewCount = true;
+      }
+    }
 
     // Current metrics
     const totalSpentCurrent = currentExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
     const countCurrent = currentExpenses.length;
-
-    // Previous metrics
-    const totalSpentPrev = prevExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-    const countPrev = prevExpenses.length;
-
-    // Changes
-    let spentChange = 0;
-    if (totalSpentPrev > 0) {
-      spentChange = ((totalSpentCurrent - totalSpentPrev) / totalSpentPrev) * 100;
-    } else if (totalSpentCurrent > 0) {
-      spentChange = 100; // 100% increase when going from 0 to some spending
-    }
-    const countChange = countCurrent - countPrev;
 
     // Highest expense
     let highestSpent = 0;
@@ -101,8 +146,10 @@ const getStats = async (req, res) => {
     res.json({
       totalSpent: totalSpentCurrent,
       spentChange,
+      isNewSpent,
       totalCount: countCurrent,
       countChange,
+      isNewCount,
       highestSpent,
       highestDate,
       highestDesc,

@@ -9,7 +9,7 @@ const CATEGORY_COLORS = {
   Other: '#ec4899'
 };
 
-const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
+const CategoryChart = ({ data }) => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
   // Calculate total across all categories
@@ -22,12 +22,12 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
     color: CATEGORY_COLORS[item.category] || '#64748b'
   }));
 
-  // SVG Calculations (Increased size to 200x200)
-  const radius = 70;
-  const strokeWidth = 20;
-  const cx = 100;
-  const cy = 100;
-  const circumference = 2 * Math.PI * radius; // 439.82
+  // SVG Calculations (Increased size to 240x240)
+  const radius = 85;
+  const strokeWidth = 24;
+  const cx = 120;
+  const cy = 120;
+  const circumference = 2 * Math.PI * radius; // 534.07
 
   let accumulatedPercentage = 0;
 
@@ -35,26 +35,17 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
     <div className="dashboard-card">
       <div className="card-header">
         <h3 className="card-title">Expenses by Category</h3>
-        <select
-          className="card-header-select"
-          value={timePeriod}
-          onChange={(e) => setTimePeriod(e.target.value)}
-        >
-          <option value="this-month">This Month</option>
-          <option value="last-month">Last Month</option>
-          <option value="all-time">All Time</option>
-        </select>
       </div>
 
       <div className="chart-content-wrapper">
         {totalAmount === 0 ? (
-          <div className="donut-chart-container" style={{ width: '200px', height: '200px', position: 'relative' }}>
-            <svg width="200" height="200" className="donut-chart-svg">
+          <div className="donut-chart-container" style={{ width: '240px', height: '240px', position: 'relative' }}>
+            <svg width="240" height="240" className="donut-chart-svg">
               <circle
                 cx={cx}
                 cy={cy}
                 r={radius}
-                fill="transparent"
+                fill="none"
                 stroke="#e2e8f0"
                 strokeWidth={strokeWidth}
               />
@@ -64,8 +55,8 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
             </div>
           </div>
         ) : (
-          <div className="donut-chart-container" style={{ width: '200px', height: '200px', position: 'relative' }}>
-            <svg width="200" height="200" className="donut-chart-svg">
+          <div className="donut-chart-container" style={{ width: '240px', height: '240px', position: 'relative' }}>
+            <svg width="240" height="240" className="donut-chart-svg">
               {chartData.map((item) => {
                 if (item.percentage === 0) return null;
 
@@ -105,7 +96,7 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
               display: 'flex',
               flexDirection: 'column',
               pointerEvents: 'none',
-              width: '120px'
+              width: '140px'
             }}>
               {hoveredCategory ? (
                 <>
@@ -142,10 +133,6 @@ const CategoryChart = ({ data, timePeriod, setTimePeriod }) => {
                   style={{ backgroundColor: item.color }}
                 />
                 <span className="legend-category-name">{item.category}</span>
-              </div>
-              <div className="legend-values">
-                <span>{formatCurrency(item.amount)}</span>
-                <span className="legend-percentage">({item.percentage.toFixed(1)}%)</span>
               </div>
             </div>
           ))}
