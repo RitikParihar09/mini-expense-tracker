@@ -7,12 +7,21 @@ import ExpenseTable from './components/ExpenseTable';
 import DailyTrendChart from './components/DailyTrendChart';
 import ExpenseForm from './components/ExpenseForm';
 import BudgetModal from './components/BudgetModal';
+import DeleteConfirmModal from './components/DeleteConfirmModal';
 import { exportToCSV, formatDate } from './utils/helpers';
-import { AlertTriangle, User, Save, PieChart, Calendar, X, ChevronDown, Check, Menu } from 'lucide-react';
+import { AlertTriangle, User, Save, PieChart, Calendar, X, ChevronDown, Check, Menu, Utensils, Car, FileText, Gamepad2, MoreHorizontal } from 'lucide-react';
 import avatar from './assets/avatar.png';
 import * as api from './utils/api';
 
 const CATEGORIES = ['Food', 'Transport', 'Bills', 'Entertainment', 'Other'];
+
+const CATEGORY_META = {
+  Food: { icon: Utensils, bgColor: 'var(--color-food-light)', iconColor: 'var(--color-food-text)' },
+  Transport: { icon: Car, bgColor: 'var(--color-transport-light)', iconColor: 'var(--color-transport-text)' },
+  Bills: { icon: FileText, bgColor: 'var(--color-bills-light)', iconColor: 'var(--color-bills-text)' },
+  Entertainment: { icon: Gamepad2, bgColor: 'var(--color-entertainment-light)', iconColor: 'var(--color-entertainment-text)' },
+  Other: { icon: MoreHorizontal, bgColor: 'var(--color-other-light)', iconColor: 'var(--color-other-text)' }
+};
 
 // Helper to generate the exact mock expenses
 const generateMockExpenses = () => {
@@ -188,6 +197,7 @@ const App = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
 
   // Budgets configuration inputs
   const [tempBudgets, setTempBudgets] = useState({});
@@ -243,14 +253,18 @@ const App = () => {
     }
   };
 
-  const handleDeleteExpense = async (id) => {
-    if (window.confirm('Are you sure you want to delete this expense?')) {
-      try {
-        await api.deleteExpense(id);
-        await loadData();
-      } catch (err) {
-        alert(err.message || 'Failed to delete expense');
-      }
+  const handleDeleteExpense = (id) => {
+    setExpenseToDelete(id);
+  };
+
+  const confirmDeleteExpense = async () => {
+    if (!expenseToDelete) return;
+    try {
+      await api.deleteExpense(expenseToDelete);
+      await loadData();
+      setExpenseToDelete(null);
+    } catch (err) {
+      alert(err.message || 'Failed to delete expense');
     }
   };
 
@@ -340,19 +354,24 @@ const App = () => {
 
   const categoryChartData = getCategoryChartData();
 
-  // Find exceeded budgets for warning banners
-  // Exceeded budgets are checked against current month's expenses
+  // Find exceeded budgets for warning banners dynamically based on selected date filters
   const exceededBudgets = CATEGORIES.map(cat => {
-    const juneSpentInCat = expenses
-      .filter(e => e && e.date && typeof e.date === 'string' && e.date.startsWith('2026-06') && e.category === cat)
+    const spentInCat = expenses
+      .filter(e => {
+        if (!e || !e.date || typeof e.date !== 'string') return false;
+        if (e.category !== cat) return false;
+        if (dashStartDate && e.date < dashStartDate) return false;
+        if (dashEndDate && e.date > dashEndDate) return false;
+        return true;
+      })
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
     const limit = budgets[cat] || 0;
     return {
       category: cat,
-      spent: juneSpentInCat,
+      spent: spentInCat,
       limit,
-      exceeded: juneSpentInCat > limit,
-      diff: juneSpentInCat - limit
+      exceeded: spentInCat > limit,
+      diff: spentInCat - limit
     };
   }).filter(b => b.exceeded);
 
@@ -546,40 +565,57 @@ const App = () => {
 
             {/* Consolidated Budget warnings if any */}
             {activeExceeded.length > 0 && (
-              <div className="budget-warning-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-                  <AlertTriangle className="budget-warning-icon" style={{ marginTop: '2px' }} />
-                  <div className="budget-warning-details">
-                    <span className="budget-warning-title">Budget Limit Exceeded!</span>
-                    <div className="budget-warning-desc" style={{ marginTop: '6px' }}>
-                      {activeExceeded.map(b => (
-                        <div key={b.category} style={{ margin: '4px 0' }}>
-                          Your spending in <strong>{b.category}</strong> (₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}) has exceeded your monthly budget of ₹{b.limit.toLocaleString('en-IN', { minimumFractionDigits: 2 })} by <strong>₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>!
-                        </div>
-                      ))}
+              <div className="budget-warning-banner">
+                <div className="budget-warning-header">
+                  <div className="budget-warning-header-left">
+                    <AlertTriangle className="budget-warning-icon-large" />
+                    <div>
+                      <span className="budget-warning-title">Budget Limit Exceeded</span>
+                      <span className="budget-warning-subtitle">
+                        You've exceeded the monthly budget in {activeExceeded.length} {activeExceeded.length === 1 ? 'category' : 'categories'}
+                      </span>
                     </div>
                   </div>
+                  <div className="budget-warning-header-actions">
+                    <button
+                      className="budget-warning-dismiss-all-btn"
+                      onClick={() => setDismissedWarnings(prev => [...prev, ...activeExceeded.map(b => b.category)])}
+                    >
+                      Dismiss All
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setDismissedWarnings(prev => [...prev, ...activeExceeded.map(b => b.category)])}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#d97706',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '4px',
-                    borderRadius: 'var(--radius-full)',
-                    transition: 'background-color 0.2s',
-                    marginTop: '2px'
-                  }}
-                  title="Dismiss all warnings"
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <X size={18} />
-                </button>
+
+                <div className="budget-warning-cards-container">
+                  {activeExceeded.map(b => {
+                    const meta = CATEGORY_META[b.category] || {
+                      icon: MoreHorizontal,
+                      bgColor: '#f1f5f9',
+                      iconColor: '#64748b'
+                    };
+                    const IconComponent = meta.icon;
+                    return (
+                      <div key={b.category} className="budget-warning-card">
+                        <div className="budget-warning-card-left">
+                          <div
+                            className="category-icon-circle"
+                            style={{ backgroundColor: meta.bgColor, color: meta.iconColor, width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                          >
+                            <IconComponent size={20} />
+                          </div>
+                          <div className="budget-warning-card-text">
+                            <span className="budget-warning-card-category">{b.category}</span>
+                            <span className="budget-warning-card-spent">₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })} spent</span>
+                          </div>
+                        </div>
+                        <div className="budget-warning-card-right">
+                          <span className="budget-warning-card-diff">₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                          <span className="budget-warning-card-over">over budget</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
@@ -651,6 +687,13 @@ const App = () => {
         budgets={budgets}
         onSave={saveBudgets}
         categories={CATEGORIES}
+      />
+
+      {/* Custom Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={expenseToDelete !== null}
+        onClose={() => setExpenseToDelete(null)}
+        onConfirm={confirmDeleteExpense}
       />
     </div>
   );
