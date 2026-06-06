@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { formatCurrency, formatDate } from '../utils/helpers';
-import { TrendingUp, Calendar } from 'lucide-react';
+import { formatCurrency } from '../utils/helpers';
+import { TrendingUp } from 'lucide-react';
 
 const DailyTrendChart = ({ expenses }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -54,7 +54,9 @@ const DailyTrendChart = ({ expenses }) => {
 
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
-  const barWidth = Math.floor(chartWidth / 7) - 20;
+  
+  // Clean proportional bar width and spacing
+  const barWidth = 32; 
   const gap = (chartWidth - barWidth * 7) / 6;
 
   // Grid lines data (Y positions)
@@ -106,12 +108,8 @@ const DailyTrendChart = ({ expenses }) => {
           {/* Gradients */}
           <defs>
             <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
-            </linearGradient>
-            <linearGradient id="barHoverGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#60a5fa" />
-              <stop offset="100%" stopColor="#a78bfa" />
+              <stop offset="0%" stopColor="#4f46e5" />
+              <stop offset="100%" stopColor="#818cf8" />
             </linearGradient>
           </defs>
 
@@ -168,21 +166,24 @@ const DailyTrendChart = ({ expenses }) => {
                     height={barHeight}
                     rx="4"
                     ry="4"
-                    fill={isHovered ? 'url(#barHoverGradient)' : 'url(#barGradient)'}
+                    fill="url(#barGradient)"
+                    opacity={isHovered ? 1.0 : 0.85}
                     style={{
-                      transition: 'y 0.3s ease-out, height 0.3s ease-out, fill 0.2s',
-                      pointerEvents: 'none'
+                      transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s',
+                      pointerEvents: 'none',
+                      transformOrigin: `${x + barWidth / 2}px ${paddingTop + chartHeight}px`,
+                      transform: isHovered ? 'scale(1.15, 1.05)' : 'scale(1)',
                     }}
                   />
                 ) : (
-                  // Zero state pill / line indicator
+                  // Zero state subtle horizontal line
                   <rect
                     x={x}
-                    y={paddingTop + chartHeight - 4}
+                    y={paddingTop + chartHeight - 3}
                     width={barWidth}
-                    height={4}
-                    rx="2"
-                    ry="2"
+                    height={3}
+                    rx="1.5"
+                    ry="1.5"
                     fill="var(--border-color)"
                     style={{ pointerEvents: 'none' }}
                   />
@@ -191,10 +192,10 @@ const DailyTrendChart = ({ expenses }) => {
                 {/* X-axis labels */}
                 <text
                   x={x + barWidth / 2}
-                  y={height - 14}
+                  y={height - 16}
                   textAnchor="middle"
                   style={{
-                    fontSize: '11px',
+                    fontSize: '10px',
                     fill: isHovered ? 'var(--text-primary)' : 'var(--text-secondary)',
                     fontFamily: 'inherit',
                     fontWeight: isHovered ? 600 : 500,
@@ -205,7 +206,7 @@ const DailyTrendChart = ({ expenses }) => {
                 </text>
                 <text
                   x={x + barWidth / 2}
-                  y={height - 2}
+                  y={height - 4}
                   textAnchor="middle"
                   style={{
                     fontSize: '9px',

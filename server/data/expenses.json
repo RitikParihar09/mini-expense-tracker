@@ -1,5 +1,37 @@
 [
   {
+    "id": 1780774812436,
+    "date": "2026-06-07",
+    "description": "zepto",
+    "category": "Other",
+    "amount": 400,
+    "note": ""
+  },
+  {
+    "id": 1780774797416,
+    "date": "2026-06-07",
+    "description": "recharge",
+    "category": "Bills",
+    "amount": 389,
+    "note": ""
+  },
+  {
+    "id": 1780774776082,
+    "date": "2026-06-04",
+    "description": "wifi",
+    "category": "Bills",
+    "amount": 589,
+    "note": ""
+  },
+  {
+    "id": 1780774738787,
+    "date": "2026-06-06",
+    "description": "mess",
+    "category": "Food",
+    "amount": 2900,
+    "note": ""
+  },
+  {
     "id": 1780683638692,
     "date": "2026-04-05",
     "description": "lunch",
@@ -21,14 +53,6 @@
     "description": "zepto",
     "category": "Other",
     "amount": 200,
-    "note": ""
-  },
-  {
-    "id": 1780680330844,
-    "date": "2026-06-03",
-    "description": "shift",
-    "category": "Transport",
-    "amount": 300,
     "note": ""
   },
   {

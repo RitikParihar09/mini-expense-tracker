@@ -1,9 +1,8 @@
 import React from 'react';
 import {
   LayoutDashboard,
-  Receipt,
+  ReceiptText,
   PlusCircle,
-  Wallet,
   Sun,
   Moon,
   X
@@ -12,7 +11,7 @@ import {
 const Sidebar = ({ activeTab, setActiveTab, onAddExpenseClick, theme, setTheme, isOpen, setIsOpen }) => {
   const menuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
-    { id: 'expenses', name: 'Expenses', icon: Receipt },
+    { id: 'expenses', name: 'Expenses', icon: ReceiptText },
     { id: 'add-expense', name: 'Add Expense', icon: PlusCircle, onClick: onAddExpenseClick }
   ];
 
@@ -28,11 +27,11 @@ const Sidebar = ({ activeTab, setActiveTab, onAddExpenseClick, theme, setTheme, 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div>
-        <div className="sidebar-brand">
-          <div className="sidebar-logo-icon">
-            <Wallet size={18} />
+        <div className="sidebar-brand" style={{ justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
+            <span style={{ color: 'var(--accent-primary)', fontSize: '36px', fontWeight: '800', tracking: 'wide' }}>Mini</span>
+            <span style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginTop: '2px' }}>Expense Tracker</span>
           </div>
-          <span>Expense Tracker</span>
           <button className="sidebar-close-btn" onClick={() => setIsOpen(false)} title="Close Menu">
             <X size={18} />
           </button>

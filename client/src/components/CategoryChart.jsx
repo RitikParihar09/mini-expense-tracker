@@ -22,12 +22,12 @@ const CategoryChart = ({ data }) => {
     color: CATEGORY_COLORS[item.category] || '#64748b'
   }));
 
-  // SVG Calculations (Increased size to 240x240)
-  const radius = 85;
-  const strokeWidth = 24;
-  const cx = 120;
-  const cy = 120;
-  const circumference = 2 * Math.PI * radius; // 534.07
+  // SVG Calculations: Thicker stroke width (32px) and adjusted radius (75px) for a chunkier, premium look
+  const radius = 75; 
+  const strokeWidth = 32;
+  const cx = 105;
+  const cy = 105;
+  const circumference = 2 * Math.PI * radius; // ~471.24
 
   let accumulatedPercentage = 0;
 
@@ -39,29 +39,58 @@ const CategoryChart = ({ data }) => {
 
       <div className="chart-content-wrapper">
         {totalAmount === 0 ? (
-          <div className="donut-chart-container" style={{ width: '240px', height: '240px', position: 'relative' }}>
-            <svg width="240" height="240" className="donut-chart-svg">
+          <div className="donut-chart-container" style={{ width: '210px', height: '210px', position: 'relative' }}>
+            <svg width="210" height="210" className="donut-chart-svg">
               <circle
                 cx={cx}
                 cy={cy}
                 r={radius}
                 fill="none"
-                stroke="#e2e8f0"
+                stroke="var(--border-color)"
                 strokeWidth={strokeWidth}
               />
             </svg>
             <div className="donut-chart-center-text">
-              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748b' }}>No Data</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>No Data</span>
             </div>
           </div>
         ) : (
-          <div className="donut-chart-container" style={{ width: '240px', height: '240px', position: 'relative' }}>
-            <svg width="240" height="240" className="donut-chart-svg">
+          <div className="donut-chart-container" style={{ width: '210px', height: '210px', position: 'relative' }}>
+            <svg width="210" height="210" className="donut-chart-svg" style={{ overflow: 'visible' }}>
+              <defs>
+                {/* Glow drop-shadow for hovered segments */}
+                <filter id="donutGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feColorMatrix type="matrix" values="0 0 0 0 0.1   0 0 0 0 0.1   0 0 0 0 0.2  0 0 0 0.15 0" />
+                  <feMerge>
+                    <feMergeNode />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              {/* Background Circular Track */}
+              <circle
+                cx={cx}
+                cy={cy}
+                r={radius}
+                fill="none"
+                stroke="var(--border-color)"
+                strokeWidth={strokeWidth}
+                opacity="0.35"
+              />
+
+              {/* Segment Slices */}
               {chartData.map((item) => {
                 if (item.percentage === 0) return null;
 
-                const strokeDasharray = `${(item.percentage / 100) * circumference} ${circumference}`;
-                const strokeDashoffset = -((accumulatedPercentage / 100) * circumference);
+                // Subtract a tiny fraction (0.8%) from each segment's stroke to create a clean gap between slices
+                const gapPercent = 0.8;
+                const activePercentage = Math.max(0.2, item.percentage - gapPercent);
+                
+                // We offset starting point to center the gap
+                const strokeDasharray = `${(activePercentage / 100) * circumference} ${circumference}`;
+                const strokeDashoffset = -(((accumulatedPercentage + (gapPercent / 2)) / 100) * circumference);
                 
                 accumulatedPercentage += item.percentage;
                 const isHovered = hoveredCategory && hoveredCategory.category === item.category;
@@ -74,13 +103,16 @@ const CategoryChart = ({ data }) => {
                     r={radius}
                     fill="none"
                     stroke={item.color}
-                    strokeWidth={isHovered ? strokeWidth + 4 : strokeWidth}
+                    strokeWidth={isHovered ? strokeWidth + 8 : strokeWidth}
                     strokeDasharray={strokeDasharray}
                     strokeDashoffset={strokeDashoffset}
+                    filter={isHovered ? 'url(#donutGlow)' : 'none'}
                     onMouseEnter={() => setHoveredCategory(item)}
                     onMouseLeave={() => setHoveredCategory(null)}
                     style={{
-                      transition: 'stroke-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 0.5s ease-in-out',
+                      transformOrigin: `${cx}px ${cy}px`,
+                      transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+                      transition: 'stroke-width 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s',
                       cursor: 'pointer'
                     }}
                   />
@@ -96,27 +128,27 @@ const CategoryChart = ({ data }) => {
               display: 'flex',
               flexDirection: 'column',
               pointerEvents: 'none',
-              width: '140px'
+              width: '110px'
             }}>
               {hoveredCategory ? (
                 <>
-                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     {hoveredCategory.category}
                   </span>
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px', wordBreak: 'break-all' }}>
-                    {formatCurrency(hoveredCategory.amount)}
+                  <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px', wordBreak: 'break-all' }}>
+                    ₹{(hoveredCategory.amount).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                   <span style={{ fontSize: '11px', fontWeight: 700, color: hoveredCategory.color, marginTop: '2px' }}>
-                    {hoveredCategory.percentage.toFixed(1)}%
+                    {hoveredCategory.percentage.toFixed(0)}%
                   </span>
                 </>
               ) : (
                 <>
-                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Total
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Total Spent
                   </span>
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px', wordBreak: 'break-all' }}>
-                    {formatCurrency(totalAmount)}
+                  <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px', wordBreak: 'break-all' }}>
+                    ₹{totalAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                 </>
               )}
@@ -124,18 +156,46 @@ const CategoryChart = ({ data }) => {
           </div>
         )}
 
+        {/* Dynamic Connected Legend */}
         <div className="chart-legend-list">
-          {chartData.map((item) => (
-            <div key={item.category} className="chart-legend-item">
-              <div className="legend-label-group">
-                <span
-                  className="legend-dot"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="legend-category-name">{item.category}</span>
+          {chartData.map((item) => {
+            const isHovered = hoveredCategory && hoveredCategory.category === item.category;
+            return (
+              <div 
+                key={item.category} 
+                className="chart-legend-item"
+                onMouseEnter={() => setHoveredCategory(item)}
+                onMouseLeave={() => setHoveredCategory(null)}
+                style={{
+                  cursor: 'pointer',
+                  opacity: hoveredCategory ? (isHovered ? 1.0 : 0.4) : 1.0,
+                  transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
+                  transition: 'opacity 0.2s, transform 0.2s'
+                }}
+              >
+                <div className="legend-label-group">
+                  <span
+                    className="legend-dot"
+                    style={{ 
+                      backgroundColor: item.color,
+                      transform: isHovered ? 'scale(1.25)' : 'scale(1)',
+                      boxShadow: isHovered ? `0 0 8px ${item.color}` : 'none',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                  />
+                  <span 
+                    className="legend-category-name" 
+                    style={{ 
+                      fontWeight: isHovered ? 600 : 500,
+                      color: isHovered ? 'var(--text-primary)' : 'var(--text-secondary)'
+                    }}
+                  >
+                    {item.category}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

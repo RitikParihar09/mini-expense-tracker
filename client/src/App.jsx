@@ -26,7 +26,7 @@ const CATEGORY_META = {
 // Helper to generate the exact mock expenses
 const generateMockExpenses = () => {
   const list = [];
-  
+
   // 1. June 2026 Expenses (28 items, sum = 12540.50)
   // Visible items in the table
   list.push({ id: 1, date: '2026-06-03', description: 'Lunch with friends', category: 'Food', amount: 450.00, note: 'Pizza and drinks' });
@@ -78,7 +78,7 @@ const generateMockExpenses = () => {
   list.push({ id: 102, date: '2026-05-20', description: 'Weekly Groceries', category: 'Food', amount: 1500.00, note: '' });
   list.push({ id: 103, date: '2026-05-22', description: 'Car Fuel refill', category: 'Transport', amount: 800.00, note: '' });
   list.push({ id: 104, date: '2026-05-25', description: 'Fast Food Dinner', category: 'Food', amount: 209.56, note: '' });
-  
+
   // 19 small items to make up 23 items total in May
   for (let i = 105; i <= 123; i++) {
     list.push({
@@ -95,7 +95,7 @@ const generateMockExpenses = () => {
   // May target = 10609.56. 
   // Let's change item 104 amount: 10609.56 - 8000 - 1500 - 800 - 95 = 214.56.
   list[list.length - 20].amount = 214.56; // set item 104 amount
-  
+
   return list;
 };
 
@@ -111,10 +111,10 @@ const getPrevMonthRange = (startStr, endStr) => {
   if (!startStr || !endStr) return { start: '', end: '' };
   const s = new Date(startStr);
   const e = new Date(endStr);
-  
+
   const prevS = new Date(s.getFullYear(), s.getMonth() - 1, s.getDate());
   const prevE = new Date(e.getFullYear(), e.getMonth() - 1, e.getDate());
-  
+
   const format = (d) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -151,7 +151,7 @@ const App = () => {
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
-  
+
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [startDate, setStartDate] = useState(() => {
@@ -207,7 +207,7 @@ const App = () => {
     try {
       const expensesData = await api.fetchExpenses();
       setExpenses(expensesData);
-      
+
       const budgetsData = await api.fetchBudgets();
       setBudgets(budgetsData);
       setTempBudgets(budgetsData);
@@ -295,10 +295,10 @@ const App = () => {
     if (endDate) {
       filtered = filtered.filter(e => e.date <= endDate);
     }
-    
+
     // Sort descending by date (newest first) for output consistency
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
+
     exportToCSV(filtered);
   };
 
@@ -398,6 +398,13 @@ const App = () => {
 
   return (
     <div className="app-container">
+      {/* Background Glassmorphism Blobs Container */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', overflow: 'hidden', zIndex: -1, pointerEvents: 'none' }}>
+        <div className="bg-glass-blob blob-1"></div>
+        <div className="bg-glass-blob blob-2"></div>
+        <div className="bg-glass-blob blob-3"></div>
+      </div>
+
       {/* Sidebar Component */}
       <Sidebar
         activeTab={activeTab}
@@ -483,7 +490,7 @@ const App = () => {
                       <span>All Time</span>
                       {!dashStartDate && !dashEndDate && <Check size={14} style={{ color: 'var(--text-active)' }} />}
                     </button>
-                    
+
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
@@ -547,7 +554,7 @@ const App = () => {
                 <div className="profile-dropdown-menu">
                   <div className="profile-dropdown-user-info">
                     <span className="profile-dropdown-name">Ritik Parihar</span>
-                    <span className="profile-dropdown-email">ritikparihar09@gmail.com</span>
+                    <span className="profile-dropdown-email">ritikparihar2040@gmail.com</span>
                   </div>
                   <div className="profile-dropdown-divider" />
                   <div className="profile-dropdown-role">Administrator</div>
@@ -563,72 +570,16 @@ const App = () => {
             {/* KPI Summary Cards */}
             <SummaryCards stats={stats} isAllTime={!dashStartDate && !dashEndDate} />
 
-            {/* Consolidated Budget warnings if any */}
-            {activeExceeded.length > 0 && (
-              <div className="budget-warning-banner">
-                <div className="budget-warning-header">
-                  <div className="budget-warning-header-left">
-                    <AlertTriangle className="budget-warning-icon-large" />
-                    <div>
-                      <span className="budget-warning-title">Budget Limit Exceeded</span>
-                      <span className="budget-warning-subtitle">
-                        You've exceeded the monthly budget in {activeExceeded.length} {activeExceeded.length === 1 ? 'category' : 'categories'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="budget-warning-header-actions">
-                    <button
-                      className="budget-warning-dismiss-all-btn"
-                      onClick={() => setDismissedWarnings(prev => [...prev, ...activeExceeded.map(b => b.category)])}
-                    >
-                      Dismiss All
-                    </button>
-                  </div>
-                </div>
-
-                <div className="budget-warning-cards-container">
-                  {activeExceeded.map(b => {
-                    const meta = CATEGORY_META[b.category] || {
-                      icon: MoreHorizontal,
-                      bgColor: '#f1f5f9',
-                      iconColor: '#64748b'
-                    };
-                    const IconComponent = meta.icon;
-                    return (
-                      <div key={b.category} className="budget-warning-card">
-                        <div className="budget-warning-card-left">
-                          <div
-                            className="category-icon-circle"
-                            style={{ backgroundColor: meta.bgColor, color: meta.iconColor, width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-                          >
-                            <IconComponent size={20} />
-                          </div>
-                          <div className="budget-warning-card-text">
-                            <span className="budget-warning-card-category">{b.category}</span>
-                            <span className="budget-warning-card-spent">₹{b.spent.toLocaleString('en-IN', { minimumFractionDigits: 2 })} spent</span>
-                          </div>
-                        </div>
-                        <div className="budget-warning-card-right">
-                          <span className="budget-warning-card-diff">₹{b.diff.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                          <span className="budget-warning-card-over">over budget</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {/* Middle Section: Chart + Progress Summary */}
             <div className="dashboard-middle-grid">
               <CategoryChart
                 data={categoryChartData}
               />
-              <CategorySummary data={categoryChartData} onEditBudgetClick={() => setIsBudgetModalOpen(true)} />
+              <CategorySummary data={categoryChartData} budgets={budgets} onEditBudgetClick={() => setIsBudgetModalOpen(true)} />
             </div>
 
             {/* Daily Trend Bar Chart */}
-            <div style={{ marginTop: '24px' }}>
+            <div>
               <DailyTrendChart expenses={expenses} />
             </div>
 

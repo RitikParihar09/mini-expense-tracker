@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Calendar, Edit3, Trash2, Plus, ArrowUpDown, ChevronLeft, ChevronRight, X, Download } from 'lucide-react';
+import { Calendar, Pencil, Trash2, Plus, ArrowUpDown, ChevronLeft, ChevronRight, X, Download } from 'lucide-react';
 import { formatCurrency, formatDate } from '../utils/helpers';
 
 const ExpenseTable = ({
@@ -344,7 +344,7 @@ const ExpenseTable = ({
                         onClick={() => onEditExpense(exp)}
                         title="Edit expense"
                       >
-                        <Edit3 className="action-btn-icon" />
+                        <Pencil className="action-btn-icon" />
                       </button>
                       <button
                         className="action-btn delete-btn"
