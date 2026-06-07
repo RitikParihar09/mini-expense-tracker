@@ -1,56 +1,142 @@
-# Mini Expense Tracker (Exercise 2)
+# Mini Expense Tracker
 
-A highly polished, responsive, and interactive full-stack expense tracking application designed as a take-home assessment for the Full Stack Developer Programme. We chose **Exercise 2: Mini Expense Tracker** to build a single-user application that allows tracking, editing, deleting, and filtering daily expenditures with custom budget allocations per category, dynamic KPI cards, interactive SVG charts, currency formatting, and automated endpoint tests. The project is structured as a monorepo featuring a React single-page application (client) and a lightweight Node.js/Express REST API (server) that persists transaction data locally to disk.
+A highly polished, responsive, and interactive full-stack expense tracking web application built using React, Node.js, and Express.
+This project was developed as part of the **Studio Graphene Full Stack Developer Assessment (Exercise 2: Mini Expense Tracker)**.
 
----
-
-## 🔗 Live Demo Links
-*   **Local Host**: [http://localhost:5173](http://localhost:5173) (Local client server)
-*   **Production Deployment**: *Not Deployed* (Configured for local execution and manual review)
-
----
-
-## 🛠️ Tech Stack & Why We Used Them
-
-*   **Frontend: React 19 (Vite) & Lucide React**
-    *   *Why*: React allows us to build a highly reactive UI with instant status updates. Vite was selected as the build tool for its extremely fast Hot Module Replacement (HMR) during development. Lucide React provides crisp, lightweight, and modern iconography.
-*   **Backend: Node.js & Express**
-    *   *Why*: Express provides a minimalist, robust routing system for handling RESTful API requests and executing custom validation middlewares.
-*   **Database: Local JSON Files (`expenses.json` & `budgets.json`)**
-    *   *Why*: Persisting data to JSON files avoids the overhead of setting up a full external database like PostgreSQL or MongoDB, making the app simple to run for reviewers while fully satisfying the requirement of persistence across server restarts.
-*   **Testing: Jest & Supertest**
-    *   *Why*: Jest is a powerful testing framework. Supertest allows us to simulate GET, POST, PUT, and DELETE requests to our Express app. We mocked the database file-system layers inside our test files to run tests in-memory, ensuring they run instantly without corrupting actual developer data files.
-*   **Styling: Vanilla CSS & HSL Custom Properties**
-    *   *Why*: We built a custom modern design system using native CSS variables (HSL color spaces) for flexibility, enabling smooth theme transitions between Light Mode and Dark Mode without introducing massive utility libraries.
+The application allows users to:
+* Add, edit, and delete expenses
+* Track spending by category
+* View expense summaries and analytics
+* Set category-wise monthly budgets
+* Export expenses as CSV
+* Visualize spending trends using interactive charts
 
 ---
 
-## ⚙️ How to Run Locally
+# 🔗 Live Demo
 
-Follow these instructions to run the application. We assume you only have **Node.js** (v18 or higher) installed.
+## Frontend (Vercel)
+https://mini-expense-tracker-olive.vercel.app/
 
-### 1. Clone & Install Dependencies
-Run the following commands in your terminal to clone the repo and install packages:
+## Backend API (Render)
+https://mini-expense-tracker-api-viwu.onrender.com
+
+---
+
+# 🚀 Features
+
+## Expense Management
+* **Add Expenses**: Log purchases with amount, category, date, and optional note.
+* **Edit Expenses**: Update transaction properties inline.
+* **Delete Expenses**: Safely remove records with a custom delete confirmation dialog.
+* **Clean List View**: View transactions in a clean table layout, which auto-collapses into responsive cards on mobile screens.
+
+## Filtering & Sorting
+* **Category Filters**: Filter transactions by Food, Transport, Bills, Entertainment, or Other.
+* **Date Range Filters**: Select specific calendar boundaries with presets like "This Month", "Last Month", or "All Time".
+* **Sort Controls**: Sort expenditures by date or amount in ascending/descending order (defaulting to newest first).
+
+## Dashboard Analytics & Charts
+* **KPI Summary Cards**: Dynamic cards showing total spending, transaction counts, highest expense, and daily average.
+* **Monthly Comparatives**: Visual growth percentages comparing current period statistics to the previous month.
+* **Category Donut Chart**: High-performance interactive SVG donut chart displaying slice distribution. Supports click-to-toggle details on mobile viewports.
+* **Daily Spending Trend**: Vertical bar chart mapping spending over the last 7 calendar days. Supports touch toggling for bar detail popovers.
+
+## Budget Management
+* **Monthly Budgets**: Set custom monthly caps for each category.
+* **Visual Alerts**: Highlights category progress indicators in red and triggers budget banners when category spending exceeds the defined limit.
+
+## Additional Luxuries
+* **CSV Export**: Instantly export current filtered transaction tables to a CSV file.
+* **Responsive Layout**: Tailored support for mobile viewports down to 320px width without clipping or horizontal scrolls.
+* **Dark / Light Mode**: Beautiful glassmorphic themes powered by native CSS variable switches.
+* **Toast Notifications**: Smooth notification banners confirming successful actions or reporting backend errors.
+* **Auto-Persistent Storage**: Local JSON storage ensures that transactions are saved across server restarts.
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+* **React 19 (Vite)**: Component-driven single page application structure.
+* **Lucide React Icons**: Crisp, SVG-based icons.
+* **Vanilla CSS**: Premium modern CSS variables, transitions, and glassmorphism styling. No heavy framework dependency.
+
+## Backend
+* **Node.js & Express.js**: RESTful endpoint routes and server middleware handling.
+* **Local JSON File Database**: Persists data to disk locally (`expenses.json` and `budgets.json`) under the server module, keeping local execution fast and zero-config.
+
+## Testing
+* **Jest & Supertest**: Automated backend route testing suite with mocked filesystem databases for isolated testing.
+
+---
+
+# 📂 Project Structure
+
 ```bash
-# Clone the repository
+mini-expense-tracker/
+├── package.json               # Root monorepo scripts for easy local start
+├── README.md                  # Main documentation
+├── client/                    # Frontend React SPA
+│   ├── src/
+│   │   ├── assets/            # Static assets
+│   │   ├── components/        # Layout and display widgets
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── SummaryCards.jsx
+│   │   │   ├── CategoryChart.jsx
+│   │   │   ├── CategorySummary.jsx
+│   │   │   ├── ExpenseTable.jsx
+│   │   │   ├── ExpenseForm.jsx
+│   │   │   └── BudgetModal.jsx
+│   │   ├── utils/
+│   │   │   ├── api.js         # Integration endpoint clients
+│   │   │   └── helpers.js     # Helper utilities
+│   │   ├── App.jsx            # Main app container
+│   │   └── main.jsx
+│   ├── index.html
+│   └── package.json
+└── server/                    # Node.js API server
+    ├── server.js              # Server entry point
+    ├── data/                  # Storage folder
+    │   ├── expenses.json
+    │   └── budgets.json
+    ├── src/
+    │   ├── controllers/       # Controller handlers
+    │   ├── middlewares/       # Validation rules
+    │   ├── routes/            # REST routers
+    │   └── tests/             # Automated test cases
+    └── package.json
+```
+
+---
+
+# ⚙️ How to Run Locally
+
+## 1. Clone the Repository
+```bash
 git clone https://github.com/RitikParihar09/mini-expense-tracker.git
 cd mini-expense-tracker
+```
 
-# Install root, client, and server dependencies
+## 2. Install Dependencies
+Install dependencies for the monorepo root, frontend client, and backend server:
+```bash
 npm install
 npm run install-all
 ```
 
-### 2. Start the Development Servers
-Launch both the frontend client and backend server concurrently:
+## 3. Run the Development Server
+Launch both the frontend client and the backend server concurrently:
 ```bash
 npm run dev
+# OR for exposing client server on local network:
+npm run dev:host
 ```
-*   The **Frontend Web UI** will open on: [http://localhost:5173/](http://localhost:5173/)
-*   The **Backend Server API** will run on: `http://localhost:5001/`
+* **Frontend SPA** runs on: [http://localhost:5173/](http://localhost:5173/)
+* **Backend Server API** runs on: `http://localhost:5001/`
 
-### 3. Run Backend Test Suite
-To execute the automated unit and integration tests:
+## 4. Run Backend Tests
+Run the automated route validation test suite:
 ```bash
 cd server
 npm test
@@ -58,216 +144,104 @@ npm test
 
 ---
 
-## 📡 API Documentation
+# 📡 API Documentation
 
-The Express backend exposes the following endpoints:
-
-### 1. Health Status
-*   **Method**: `GET`
-*   **Path**: `/api/health`
-*   **Response Shape**:
-    ```json
-    {
-      "status": "ok",
-      "message": "Server is healthy and running"
-    }
-    ```
-
-### 2. Get Expenses
-*   **Method**: `GET`
-*   **Path**: `/api/expenses`
-*   **Query Parameters**:
-    *   `category` (optional, e.g. `Food`)
-    *   `startDate` (optional, format `YYYY-MM-DD`)
-    *   `endDate` (optional, format `YYYY-MM-DD`)
-*   **Response Shape**:
-    ```json
-    [
-      {
-        "id": 1780672671885,
-        "date": "2026-06-05",
-        "description": "Taxi ride to office",
-        "category": "Transport",
-        "amount": 250,
-        "note": "Met with client"
-      }
-    ]
-    ```
-
-### 3. Create Expense
-*   **Method**: `POST`
-*   **Path**: `/api/expenses`
-*   **Request Body**:
-    ```json
-    {
-      "date": "2026-06-05",
-      "description": "Lunch with friends",
-      "category": "Food",
-      "amount": 450.00,
-      "note": "Pizza"
-    }
-    ```
-*   **Response Shape**:
-    ```json
-    {
-      "success": true,
-      "data": {
-        "id": 1780672671999,
-        "date": "2026-06-05",
-        "description": "Lunch with friends",
-        "category": "Food",
-        "amount": 450.00,
-        "note": "Pizza"
-      }
-    }
-    ```
-
-### 4. Edit Expense
-*   **Method**: `PUT`
-*   **Path**: `/api/expenses/:id`
-*   **Request Body**: Same schema as **Create Expense**
-*   **Response Shape**:
-    ```json
-    {
-      "success": true,
-      "data": {
-        "id": 1780672671999,
-        "date": "2026-06-05",
-        "description": "Lunch with colleagues",
-        "category": "Food",
-        "amount": 500.00,
-        "note": "Company lunch reimbursement"
-      }
-    }
-    ```
-
-### 5. Delete Expense
-*   **Method**: `DELETE`
-*   **Path**: `/api/expenses/:id`
-*   **Response Shape**:
-    ```json
-    {
-      "success": true,
-      "message": "Expense deleted successfully"
-    }
-    ```
-
-### 6. Get Budgets
-*   **Method**: `GET`
-*   **Path**: `/api/budgets`
-*   **Response Shape**:
-    ```json
-    {
-      "Food": 5000,
-      "Transport": 3000,
-      "Bills": 3000,
-      "Entertainment": 2000,
-      "Other": 1500
-    }
-    ```
-
-### 7. Save Budgets
-*   **Method**: `PUT`
-*   **Path**: `/api/budgets`
-*   **Request Body**:
-    ```json
-    {
-      "Food": 6000,
-      "Transport": 3500,
-      "Bills": 4000,
-      "Entertainment": 2500,
-      "Other": 2000
-    }
-    ```
-*   **Response Shape**:
-    ```json
-    {
-      "success": true,
-      "budgets": {
-        "Food": 6000,
-        "Transport": 3500,
-        "Bills": 4000,
-        "Entertainment": 2500,
-        "Other": 2000
-      }
-    }
-    ```
-
-### 8. Compute Statistics
-*   **Method**: `GET`
-*   **Path**: `/api/expenses/stats`
-*   **Query Parameters**: `startDate` and `endDate`
-*   **Response Shape**:
-    ```json
-    {
-      "totalSpent": 12540.50,
-      "spentChange": 18.2,
-      "isNewSpent": false,
-      "totalCount": 28,
-      "countChange": 5,
-      "isNewCount": false,
-      "highestSpent": 3200.00,
-      "highestDate": "2026-06-02",
-      "highestDesc": "Electricity Bill",
-      "dailyAvg": 418.02
-    }
-    ```
+## Health Status
+### GET `/api/health`
+Checks server status.
+* **Response:**
+  ```json
+  {
+    "status": "ok",
+    "message": "Expense Tracker API is running"
+  }
+  ```
 
 ---
 
-## 📂 Project Structure
+## Expenses APIs
 
-```text
-mini-expense-tracker/
-├── package.json               # Root monorepo configuration scripts
-├── README.md                  # Assessment documentation
-├── client/                    # React frontend project (Vite)
-│   ├── package.json
-│   ├── index.html
-│   ├── src/
-│   │   ├── main.jsx
-│   │   ├── App.jsx           # Main state manager & dashboard router
-│   │   ├── index.css          # Design system & dark mode variables
-│   │   ├── components/
-│   │   │   ├── Sidebar.jsx    # Left navigation panel & theme switcher
-│   │   │   ├── SummaryCards.jsx # Top dashboard indicators (KPIs)
-│   │   │   ├── CategoryChart.jsx # SVG animated donut chart
-│   │   │   ├── CategorySummary.jsx # Budgets progress bars
-│   │   │   ├── BudgetModal.jsx # Adjust category budgets overlay
-│   │   │   ├── ExpenseTable.jsx # Transaction logs with pagination & filters
-│   │   │   └── ExpenseForm.jsx # Add/Edit transaction modal overlay
-│   │   └── utils/
-│   │       ├── api.js         # Integration layer client (Native Fetch)
-│   │       └── helpers.js     # Helpers for currency, CSV exporting
-└── server/                    # Node.js Express backend
-    ├── package.json
-    ├── server.js              # Server entry point
-    ├── data/
-    │   ├── expenses.json      # Persistent storage database for expenses
-    │   └── budgets.json       # Persistent storage database for budgets
-    └── src/
-        ├── routes/
-        │   ├── expenseRoutes.js # Routes mapping for expenses
-        │   └── budgetRoutes.js  # Routes mapping for budgets
-        ├── controllers/
-        │   ├── expenseController.js # Aggregations, CRUD controllers
-        │   └── budgetController.js  # Budget management controllers
-        ├── middlewares/
-        │   └── validation.js    # Data schema validation middleware
-        └── tests/
-            └── server.test.js   # Automated API endpoint tests using Jest
-```
+### GET All Expenses
+### GET `/api/expenses`
+Returns all logged expenses. Filters can be applied via query strings.
+* **Query Parameters (Optional):**
+  * `category` (e.g. `Food`)
+  * `startDate` (`YYYY-MM-DD`)
+  * `endDate` (`YYYY-MM-DD`)
+
+### Add Expense
+### POST `/api/expenses`
+Creates a new expense log.
+* **Request Body:**
+  ```json
+  {
+    "amount": 250,
+    "category": "Food",
+    "date": "2026-06-07",
+    "description": "Lunch",
+    "note": "With friends"
+  }
+  ```
+
+### Update Expense
+### PUT `/api/expenses/:id`
+Updates an existing expense entry.
+
+### Delete Expense
+### DELETE `/api/expenses/:id`
+Deletes an expense.
 
 ---
 
-## 🔮 Next Steps & Decisions
+## Budget APIs
 
-### What We Chose Not to Do
-1.  **User Authentication (Sign In/Sign Up)**: We did not implement auth because the brief specified a single-user dashboard where no authentication is needed.
-2.  **External Database Server**: We bypassed databases like MongoDB or PostgreSQL and chose persistent JSON files to make local setups extremely straightforward for reviewers.
-3.  **Frontend Component Tests**: We prioritized writing a comprehensive integration test suite for backend controllers and APIs, choosing not to write React component unit tests (e.g. testing specific React button clicks) to focus on the API contracts first.
+### GET Budgets
+### GET `/api/budgets`
+Retrieves the target monthly budget thresholds per category.
 
-### What We Would Build Next
-1.  **Multiple Users & Auth**: Add JWT-based cookie session authentication allowing different users to maintain separate budgets and expenses.
-2.  **Interactive Budget Alerts Config**: Allow users to toggle whether they want notifications via email or desktop alerts when a category budget exceeds 80% or 100%.
-3.  **Recurring Expenses**: Allow users to set repeating transactions (e.g., monthly Netflix or house rent) that are logged automatically on the scheduled day.
+### Update Budgets
+### PUT `/api/budgets`
+Updates the monthly budget thresholds.
+* **Request Body:**
+  ```json
+  {
+    "Food": 5000,
+    "Transport": 3000,
+    "Bills": 3000,
+    "Entertainment": 2000,
+    "Other": 1500
+  }
+  ```
+
+---
+
+# 🛡️ Validation Rules
+
+* **Amount**: Must be a positive number greater than `0`.
+* **Category**: Must be one of the pre-defined options (`Food`, `Transport`, `Bills`, `Entertainment`, `Other`).
+* **Date**: Future dates are blocked.
+* **Description**: Required field, cannot be left empty.
+
+---
+
+# 🔮 Future Improvements
+
+Given more time, the following features would be added:
+* **Authentication**: Multi-user account support with JWT sessions.
+* **Database Support**: Transitioning database persistence to MongoDB or PostgreSQL.
+* **Search Field**: Real-time keyword filtering across description and notes fields.
+* **Recurring Logs**: Auto-logging subscription plans (e.g., Netflix, Gym membership).
+* **Advanced Analytics**: Interactive monthly trend comparison charts over multiple years.
+
+---
+
+# 💡 Notes
+* Persistent storage uses local JSON files instead of an external database to keep review installation zero-config.
+* Chart visual triggers are fully responsive and optimized for screen rotation, desktop scaling, and mobile simulators.
+
+---
+
+# 👤 Author
+
+**Ritik Parihar**
+* **GitHub**: [https://github.com/RitikParihar09](https://github.com/RitikParihar09)

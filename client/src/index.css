@@ -76,6 +76,7 @@ body {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
+  max-width: 100%;
 }
 
 /* Sidebar Styling */
@@ -134,9 +135,11 @@ body {
   cursor: pointer;
 }
 
-.sidebar-item:hover {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+@media (hover: hover) {
+  .sidebar-item:hover {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
 }
 
 .sidebar-item.active {
@@ -198,7 +201,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 28px;
-  overflow-y: auto;
+  overflow: visible;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -686,13 +689,14 @@ body.dark-theme .tiny-warning-badge {
 
 /* Expenses Table Styling */
 .table-wrapper {
-  overflow-x: auto;
+  overflow: visible;
   width: 100%;
 }
 
 .expenses-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
 }
 
@@ -1408,6 +1412,7 @@ body.dark-theme .bg-glass-blob {
     box-shadow: var(--shadow-xl);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: var(--bg-secondary);
+    overflow-y: auto;
   }
   
   .sidebar.open {
@@ -1431,7 +1436,16 @@ body.dark-theme .bg-glass-blob {
   }
   
   .main-content {
+    padding: 12px;
+  }
+
+  .dashboard-card, .recent-expenses-card, .summary-card {
     padding: 16px;
+  }
+
+  .budget-warning-card {
+    max-width: 100% !important;
+    width: 100% !important;
   }
   
   .header-section {
@@ -1478,6 +1492,25 @@ body.dark-theme .bg-glass-blob {
   .custom-date-popover {
     width: 100%;
     box-sizing: border-box;
+  }
+}
+
+.date-filter-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: 180px;
+  vertical-align: middle;
+}
+@media (max-width: 480px) {
+  .date-filter-label {
+    max-width: 130px;
+  }
+  .category-summary-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 }
 
@@ -1645,4 +1678,184 @@ body.dark-theme .sidebar-promo-card {
   border-radius: var(--radius-full);
   width: fit-content;
   font-weight: 600;
+}
+
+/* Custom Toast Notification styles */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.custom-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-secondary-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-dark);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  animation: slideDownFade 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s ease;
+}
+
+body.dark-theme .custom-toast {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  line-height: 1;
+}
+
+@keyframes slideDownFade {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Sticky Filter Row for All Expenses tab */
+.sticky-filters-row {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--bg-secondary);
+  margin-top: -24px;
+  margin-left: -24px;
+  margin-right: -24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-expenses-card:has(.sticky-filters-row) .table-wrapper {
+  max-height: none;
+  overflow-y: visible;
+}
+
+.recent-expenses-card:has(.sticky-filters-row) .expenses-table th {
+  position: sticky;
+  top: 71px; /* Just below the sticky filter row */
+  z-index: 99;
+  background-color: var(--bg-secondary);
+}
+
+@media (max-width: 768px) {
+  /* Prevent horizontal scrolling by transforming table into vertical block cards */
+  .expenses-table, 
+  .expenses-table thead, 
+  .expenses-table tbody, 
+  .expenses-table th, 
+  .expenses-table td, 
+  .expenses-table tr { 
+    display: block; 
+  }
+  
+  /* Hide the table headers on mobile */
+  .expenses-table thead tr { 
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  /* Render each row as a card */
+  .expenses-table tr {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    padding: 16px;
+    background-color: var(--bg-secondary-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Style each cell as a labeled row in the card */
+  .expenses-table td { 
+    border: none;
+    border-bottom: 1px solid var(--border-color); 
+    position: relative;
+    padding: 10px 0 10px 45%; 
+    text-align: right;
+    font-size: 13px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .expenses-table td:last-child {
+    border-bottom: none;
+  }
+  
+  /* Add label prefix to cells using CSS content generation */
+  .expenses-table td:before { 
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 40%; 
+    padding-right: 10px; 
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+  
+  /* Define labels for each column position */
+  .expenses-table td:nth-of-type(1):before { content: "Date"; }
+  .expenses-table td:nth-of-type(2):before { content: "Description"; }
+  .expenses-table td:nth-of-type(3):before { content: "Category"; }
+  .expenses-table td:nth-of-type(4):before { content: "Amount"; }
+  .expenses-table td:nth-of-type(5):before { content: "Note"; }
+  .expenses-table td:nth-of-type(6):before { content: "Actions"; }
+
+  /* Right-align action buttons on mobile */
+  .action-buttons-group {
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  /* Wrap filters row layout on mobile for better fit */
+  .sticky-filters-row {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 16px !important;
+    margin-top: -16px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 12px 16px;
+  }
+
+  .filters-left-group {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .filter-select, .date-range-picker-input {
+    width: 100% !important;
+    justify-content: center;
+  }
 }

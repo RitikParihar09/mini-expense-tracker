@@ -5,23 +5,39 @@ import { TrendingUp } from 'lucide-react';
 const DailyTrendChart = ({ expenses }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
+  const handleMouseEnter = (idx) => {
+    if (window.matchMedia('(hover: hover)').matches) {
+      setHoveredIndex(idx);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (window.matchMedia('(hover: hover)').matches) {
+      setHoveredIndex(null);
+    }
+  };
+
+  const handleClick = (idx) => {
+    setHoveredIndex((prev) => (prev === idx ? null : idx));
+  };
+
   // 1. Calculate the last 7 calendar days ending today
   const getLast7Days = () => {
     const list = [];
     const today = new Date();
-    
+
     for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      
+
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
-      
+
       const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
       const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      
+
       list.push({ dateStr, dayName, label });
     }
     return list;
@@ -54,9 +70,9 @@ const DailyTrendChart = ({ expenses }) => {
 
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
-  
+
   // Clean proportional bar width and spacing
-  const barWidth = 32; 
+  const barWidth = 32;
   const gap = (chartWidth - barWidth * 7) / 6;
 
   // Grid lines data (Y positions)
@@ -99,11 +115,11 @@ const DailyTrendChart = ({ expenses }) => {
       </div>
 
       <div style={{ width: '100%', overflowX: 'auto', position: 'relative' }}>
-        <svg 
-          viewBox={`0 0 ${width} ${height}`} 
-          width="100%" 
-          height="100%" 
-          style={{ display: 'block', minWidth: '450px' }}
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          width="100%"
+          height="100%"
+          style={{ display: 'block', minWidth: '0' }}
         >
           {/* Gradients */}
           <defs>
@@ -142,6 +158,7 @@ const DailyTrendChart = ({ expenses }) => {
             const x = paddingLeft + idx * (barWidth + gap);
             const y = paddingTop + chartHeight - barHeight;
             const isHovered = hoveredIndex === idx;
+            const isToday = idx === 6;
 
             return (
               <g key={idx}>
@@ -152,8 +169,9 @@ const DailyTrendChart = ({ expenses }) => {
                   width={barWidth + gap}
                   height={chartHeight}
                   fill="transparent"
-                  onMouseEnter={() => setHoveredIndex(idx)}
-                  onMouseLeave={() => setHoveredIndex(null)}
+                  onMouseEnter={() => handleMouseEnter(idx)}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick(idx)}
                   style={{ cursor: 'pointer' }}
                 />
 
@@ -189,6 +207,19 @@ const DailyTrendChart = ({ expenses }) => {
                   />
                 )}
 
+                {/* Highlight Pill Background for Today */}
+                {isToday && (
+                  <rect
+                    x={x + barWidth / 2 - 18}
+                    y={height - 25}
+                    width="36"
+                    height="13"
+                    rx="6.5"
+                    fill="var(--accent-primary)"
+                    opacity="0.15"
+                  />
+                )}
+
                 {/* X-axis labels */}
                 <text
                   x={x + barWidth / 2}
@@ -196,9 +227,11 @@ const DailyTrendChart = ({ expenses }) => {
                   textAnchor="middle"
                   style={{
                     fontSize: '10px',
-                    fill: isHovered ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fill: isToday 
+                      ? 'var(--accent-primary)' 
+                      : (isHovered ? 'var(--text-primary)' : 'var(--text-secondary)'),
                     fontFamily: 'inherit',
-                    fontWeight: isHovered ? 600 : 500,
+                    fontWeight: isToday || isHovered ? 700 : 500,
                     transition: 'fill 0.2s'
                   }}
                 >

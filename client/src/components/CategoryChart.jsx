@@ -22,6 +22,22 @@ const CategoryChart = ({ data }) => {
     color: CATEGORY_COLORS[item.category] || '#64748b'
   }));
 
+  const handleMouseEnter = (item) => {
+    if (window.matchMedia('(hover: hover)').matches) {
+      setHoveredCategory(item);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (window.matchMedia('(hover: hover)').matches) {
+      setHoveredCategory(null);
+    }
+  };
+
+  const handleSliceClick = (item) => {
+    setHoveredCategory((prev) => (prev && prev.category === item.category ? null : item));
+  };
+
   // SVG Calculations: Thicker stroke width (32px) and adjusted radius (75px) for a chunkier, premium look
   const radius = 75; 
   const strokeWidth = 32;
@@ -107,8 +123,9 @@ const CategoryChart = ({ data }) => {
                     strokeDasharray={strokeDasharray}
                     strokeDashoffset={strokeDashoffset}
                     filter={isHovered ? 'url(#donutGlow)' : 'none'}
-                    onMouseEnter={() => setHoveredCategory(item)}
-                    onMouseLeave={() => setHoveredCategory(null)}
+                    onMouseEnter={() => handleMouseEnter(item)}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={() => handleSliceClick(item)}
                     style={{
                       transformOrigin: `${cx}px ${cy}px`,
                       transform: isHovered ? 'scale(1.08)' : 'scale(1)',
@@ -164,8 +181,9 @@ const CategoryChart = ({ data }) => {
               <div 
                 key={item.category} 
                 className="chart-legend-item"
-                onMouseEnter={() => setHoveredCategory(item)}
-                onMouseLeave={() => setHoveredCategory(null)}
+                onMouseEnter={() => handleMouseEnter(item)}
+                onMouseLeave={handleMouseLeave}
+                onClick={() => handleSliceClick(item)}
                 style={{
                   cursor: 'pointer',
                   opacity: hoveredCategory ? (isHovered ? 1.0 : 0.4) : 1.0,

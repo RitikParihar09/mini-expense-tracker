@@ -1,5 +1,29 @@
 [
   {
+    "id": 1780821469212,
+    "date": "2026-06-07",
+    "description": "pen",
+    "category": "Other",
+    "amount": 20,
+    "note": ""
+  },
+  {
+    "id": 1780777794598,
+    "date": "2026-06-07",
+    "description": "burger",
+    "category": "Food",
+    "amount": 100,
+    "note": ""
+  },
+  {
+    "id": 1780777683131,
+    "date": "2026-06-06",
+    "description": "tea",
+    "category": "Food",
+    "amount": 20,
+    "note": ""
+  },
+  {
     "id": 1780774812436,
     "date": "2026-06-07",
     "description": "zepto",

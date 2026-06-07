@@ -8,8 +8,10 @@
     "install:server": "npm install --prefix server",
     "install-all": "npm run install:client && npm run install:server",
     "client": "npm run dev --prefix client",
+    "client:host": "npm run dev:host --prefix client",
     "server": "npm run dev --prefix server",
-    "dev": "concurrently \"npm run client\" \"npm run server\""
+    "dev": "concurrently \"npm run client\" \"npm run server\"",
+    "dev:host": "concurrently \"npm run client:host\" \"npm run server\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -13,14 +13,16 @@ const ExpenseTable = ({
   startDate,
   endDate,
   setDateRange,
-  categories
+  categories,
+  itemsPerPage = 10,
+  isSticky = false,
+  title = "Recent Expenses"
 }) => {
   // Sort State
   const [sortDirection, setSortDirection] = useState('desc'); // 'asc' or 'desc'
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
 
   // Custom Date Popover State
   const [showDatePopover, setShowDatePopover] = useState(false);
@@ -57,16 +59,23 @@ const ExpenseTable = ({
     let start = '';
     let end = '';
 
+    const formatDateLocal = (d) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     if (preset === 'this-month') {
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
       const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      start = firstDay.toISOString().split('T')[0];
-      end = lastDay.toISOString().split('T')[0];
+      start = formatDateLocal(firstDay);
+      end = formatDateLocal(lastDay);
     } else if (preset === 'last-month') {
       const firstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1);
       const lastDay = new Date(today.getFullYear(), today.getMonth(), 0);
-      start = firstDay.toISOString().split('T')[0];
-      end = lastDay.toISOString().split('T')[0];
+      start = formatDateLocal(firstDay);
+      end = formatDateLocal(lastDay);
     } else if (preset === 'all') {
       start = '';
       end = '';
@@ -191,8 +200,8 @@ const ExpenseTable = ({
 
   return (
     <div className="recent-expenses-card">
-      <div className="table-filters-row">
-        <h3 className="card-title">Recent Expenses</h3>
+      <div className={`table-filters-row ${isSticky ? 'sticky-filters-row' : ''}`}>
+        {title && <h3 className="card-title">{title}</h3>}
 
         <div className="filters-left-group">
           {/* Category Dropdown */}

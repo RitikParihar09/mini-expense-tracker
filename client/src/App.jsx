@@ -8,6 +8,7 @@ import DailyTrendChart from './components/DailyTrendChart';
 import ExpenseForm from './components/ExpenseForm';
 import BudgetModal from './components/BudgetModal';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
+import Toast from './components/Toast';
 import { exportToCSV, formatDate } from './utils/helpers';
 import { AlertTriangle, User, Save, PieChart, Calendar, X, ChevronDown, Check, Menu, Utensils, Car, FileText, Gamepad2, MoreHorizontal } from 'lucide-react';
 import avatar from './assets/avatar.png';
@@ -154,19 +155,8 @@ const App = () => {
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}-01`;
-  });
-  const [endDate, setEndDate] = useState(() => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const lastDay = new Date(year, d.getMonth() + 1, 0).getDate();
-    return `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
-  });
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [timePeriod, setTimePeriod] = useState('this-month'); // for category chart filter
   const [dismissedWarnings, setDismissedWarnings] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -198,6 +188,7 @@ const App = () => {
   const [editingExpense, setEditingExpense] = useState(null);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
+  const [toast, setToast] = useState(null);
 
   // Budgets configuration inputs
   const [tempBudgets, setTempBudgets] = useState({});
@@ -226,8 +217,9 @@ const App = () => {
       setBudgets(result.budgets);
       setTempBudgets(result.budgets);
       setDismissedWarnings([]); // Clear dismissed warnings on budget limit updates
+      setToast({ message: 'Budgets updated successfully', type: 'success' });
     } catch (err) {
-      alert(err.message || 'Failed to save budgets');
+      setToast({ message: err.message || 'Failed to save budgets', type: 'error' });
     }
   };
 
@@ -237,8 +229,9 @@ const App = () => {
       await api.createExpense(expenseData);
       await loadData();
       setIsFormOpen(false);
+      setToast({ message: 'Expense added successfully', type: 'success' });
     } catch (err) {
-      alert(err.message || 'Failed to add expense');
+      setToast({ message: err.message || 'Failed to add expense', type: 'error' });
     }
   };
 
@@ -248,8 +241,9 @@ const App = () => {
       await loadData();
       setEditingExpense(null);
       setIsFormOpen(false);
+      setToast({ message: 'Expense updated successfully', type: 'success' });
     } catch (err) {
-      alert(err.message || 'Failed to update expense');
+      setToast({ message: err.message || 'Failed to update expense', type: 'error' });
     }
   };
 
@@ -263,8 +257,9 @@ const App = () => {
       await api.deleteExpense(expenseToDelete);
       await loadData();
       setExpenseToDelete(null);
+      setToast({ message: 'Expense deleted successfully', type: 'success' });
     } catch (err) {
-      alert(err.message || 'Failed to delete expense');
+      setToast({ message: err.message || 'Failed to delete expense', type: 'error' });
     }
   };
 
@@ -448,7 +443,7 @@ const App = () => {
                   onClick={() => setShowDashDatePopover(!showDashDatePopover)}
                 >
                   <Calendar size={16} style={{ color: 'var(--text-secondary)' }} />
-                  <span>{getDashDateLabel()}</span>
+                  <span className="date-filter-label">{getDashDateLabel()}</span>
                   <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
                 </button>
 
@@ -592,10 +587,11 @@ const App = () => {
               onExportCsvClick={handleCsvExport}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
-              startDate={startDate}
-              endDate={endDate}
+              startDate={startDate || dashStartDate}
+              endDate={endDate || dashEndDate}
               setDateRange={handleDateRangeChange}
               categories={CATEGORIES}
+              itemsPerPage={5}
             />
           </>
         )}
@@ -613,6 +609,8 @@ const App = () => {
             endDate={endDate}
             setDateRange={handleDateRangeChange}
             categories={CATEGORIES}
+            isSticky={true}
+            title=""
           />
         )}
 
@@ -646,6 +644,17 @@ const App = () => {
         onClose={() => setExpenseToDelete(null)}
         onConfirm={confirmDeleteExpense}
       />
+
+      {/* Toast Notifications */}
+      {toast && (
+        <div className="toast-container">
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        </div>
+      )}
     </div>
   );
 };
