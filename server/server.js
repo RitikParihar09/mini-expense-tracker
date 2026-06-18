@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Basic health check route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Expense Tracker API is running' });
+  res.status(200).json({ message: 'Expense Tracker API is running' });
 });
 
 // API Routes

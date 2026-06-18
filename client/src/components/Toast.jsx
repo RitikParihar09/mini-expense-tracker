@@ -5,7 +5,7 @@ const Toast = ({ message, type = 'success', onClose }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 3000); // 3 seconds is perfect for a clean, transient toast
+    }, 3000); 
     return () => clearTimeout(timer);
   }, [onClose]);
 
